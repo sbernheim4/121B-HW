@@ -3,7 +3,7 @@
 (define (update ship-state fuel-burn-rate)
   (make-ship-state
    (+ (height ship-state) (* (velocity ship-state) dt)) ; height
-
+   
    (if (= (fuel ship-state) 0)
        (- (velocity ship-state) (* gravity dt))
        (+ (velocity ship-state) (* (- (* engine-strength fuel-burn-rate) gravity) dt))) ; velocity
