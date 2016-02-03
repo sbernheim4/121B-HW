@@ -19,6 +19,19 @@
        (- (fuel ship-state) (* fuel-burn-rate dt))))) ; fuel           
 
 
+(define (update ship-state fuel-burn-rate)
+  (make-ship-state
+   (+ (height ship-state) (* (velocity ship-state) dt)) ; height
+   (if (= (fuel ship-state) 0)
+       (- (velocity ship-state)
+          (* gravity dt))
+       (+ (velocity ship-state) 
+          (* (- (* engine-strength fuel-burn-rate) gravity)
+             dt)))                                      ; velocity
+   (if (>= (* fuel-burn-rate dt) (fuel ship-state))
+       0
+       (- (fuel ship-state) (* fuel-burn-rate dt)))))   ; fuel
+
 ; I added a second parameter called choice which would represent something like
 ; full-burn or ask-user. I would then test to see if choice was equal to the
 ; full-burn procedure in which case the get-fuel-burn-rate was replaced by a 1.
