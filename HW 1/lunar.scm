@@ -8,7 +8,7 @@
        (- (velocity ship-state) (* gravity dt))
        (+ (velocity ship-state) (* (- (* engine-strength fuel-burn-rate) gravity) dt))) ; velocity
    
-   (if (> (* fuel-burn-rate dt) (fuel ship-state))
+   (if (>= (* fuel-burn-rate dt) (fuel ship-state))
        0
        (- (fuel ship-state) (* fuel-burn-rate dt)))))   ; fuel
 
@@ -151,4 +151,4 @@
 
 
 (define (constant-acc ship-state)
-    (/ (+ (/ (* (velocity ship-state) (velocity ship-state)) (* 2 (height ship-state)))) gravity) engine-strength)
+    (/ (+ (/ (* (velocity ship-state) (velocity ship-state)) (* 2 (height ship-state))) gravity) engine-strength))
