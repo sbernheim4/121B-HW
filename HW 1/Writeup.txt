@@ -48,4 +48,3 @@ Problem 6
 Problem 7 
 
 To prove this begin with the equation V_f = V_i^2 + 2ad where V_f is final velocity, V_i is initial velocity, a is acceleration and d is distance. V_f is 0 since when the rocket lands its velocity is 0. Then by subtracting 2ad from both sides and then dividing by 2d you get -a = V_i^2 / 2d and the negative only indicates direction so its relevance affecting the equation is insignificant. 
-

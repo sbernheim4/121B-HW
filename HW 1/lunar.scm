@@ -55,7 +55,7 @@
                    0        ; not moving (0 km/sec)
                    20))     ; 20 kg of fuel left
 
-(define dt .1)               ; 1 second interval of simulation
+(define dt .5)               ; 1 second interval of simulation
   
 (define gravity 0.5)        ; 0.5 km/sec/sec
   
