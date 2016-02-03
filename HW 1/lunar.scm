@@ -151,6 +151,4 @@
 
 
 (define (constant-acc ship-state)
-    (/ (- (/ (* (velocity ship-state) (velocity ship-state)) (* 2 (height ship-state)))) gravity) engine-strength)
-
-(define (square x) (* x x))
+    (/ (+ (/ (* (velocity ship-state) (velocity ship-state)) (* 2 (height ship-state)))) gravity) engine-strength)
