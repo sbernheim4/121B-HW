@@ -1,23 +1,4 @@
 ;;; this is the code for problem set -- Lunar Lander
-(define (update ship-state fuel-burn-rate)
-  (if (< (- (fuel ship-state) (* fuel-burn-rate dt)) 0)      
-      (make-ship-state
-       (+ (height ship-state) (* (velocity ship-state) dt)) ; height
-
-       (+ (velocity ship-state)
-          (* (- (* engine-strength 1) gravity) ; velocity
-             dt))
-       (- (fuel ship-state) dt)) ; fuel
-
-      (make-ship-state
-       (+ (height ship-state) (* (velocity ship-state) dt)) ; height
-
-       (+ (velocity ship-state)
-          (* (- (* engine-strength fuel-burn-rate) gravity)
-             dt))                                           ; velocity
-
-       (- (fuel ship-state) (* fuel-burn-rate dt))))) ; fuel           
-
 
 (define (update ship-state fuel-burn-rate)
   (make-ship-state
@@ -75,7 +56,7 @@
                    0        ; not moving (0 km/sec)
                    20))     ; 20 kg of fuel left
 
-(define dt 1)               ; 1 second interval of simulation
+(define dt .7)               ; 1 second interval of simulation
   
 (define gravity 0.5)        ; 0.5 km/sec/sec
   
