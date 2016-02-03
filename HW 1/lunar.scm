@@ -6,11 +6,11 @@
    
    (if (= (fuel ship-state) 0)
        (- (velocity ship-state) (* gravity dt))
-       (+ (velocity ship-state) (* (- (* engine-strength fuel-burn-rate) gravity) dt))) ; velocity
+       (+ (velocity ship-state) (* (- (* engine-strength (good-fuel-burn-rate fuel-burn-rate)) gravity) dt))) ; velocity
    
-   (if (>= (* fuel-burn-rate dt) (fuel ship-state))
+   (if (>= (* (good-fuel-burn-rate fuel-burn-rate) dt) (fuel ship-state))
        0
-       (- (fuel ship-state) (* fuel-burn-rate dt)))))   ; fuel
+       (- (fuel ship-state) (* (good-fuel-burn-rate fuel-burn-rate) dt)))))   ; fuel
 
 ; I added a second parameter called choice which would represent something like
 ; full-burn or ask-user. I would then test to see if choice was equal to the
@@ -122,27 +122,33 @@
 (define (no-burn ship-state) 0)
 (define (ask-user ship-state) (get-burn-rate))
 
+; original random-choice procedure before the choice procedure was written
 ;(define (random-choice a b)
  ;   (if (= (random 2) 0)
   ;      a
    ;     b))
 
+; Original procedure for height-choice before the choice procedure was written
 ;(define (height-choice a b bounded-height)
  ; (lambda (ship-state)
   ;  (if (> (height ship-state) bounded-height)
    ;     (a ship-state)
     ;    (b ship-state))))
 
+; A procedure which takes three arguments and while the ship is above a certain height threshold, the first stratregy will be applied.
+; Once the ship falls below that height, the second strategy will be applied
 (define (height-choice strategy-1 strategy-2 bounded-height)
   (choice strategy-1
           strategy-2
           (lambda (ship-state) (>= (height ship-state) bounded-height))))
 
+; A procedure which takes two arguments and will randomly choose which argument should be applied 
 (define (random-choice strategy-1 strategy-2)
   (choice strategy-1
           strategy-2
           (lambda (ship-state) (= (random 2) 0))))
 
+; A procedure which determines which of two strategies should be applied 
 (define (choice a b pred)
   (lambda (ship-state) 
   (if (pred ship-state)
@@ -150,5 +156,14 @@
       (b ship-state))))
 
 
+; A procedure which calculates the correct fuel-burn-rate that should be applied 
 (define (constant-acc ship-state)
     (/ (+ (/ (* (velocity ship-state) (velocity ship-state)) (* 2 (height ship-state))) gravity) engine-strength))
+
+
+; A procedure which ensures the fuel burn rate is always <= 1
+(define (good-fuel-burn-rate fuel-burn-rate)
+  (if (> fuel-burn-rate 1)
+      1
+      fuel-burn-rate
+      ))
