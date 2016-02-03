@@ -3,13 +3,12 @@
 (define (update ship-state fuel-burn-rate)
   (make-ship-state
    (+ (height ship-state) (* (velocity ship-state) dt)) ; height
+
    (if (= (fuel ship-state) 0)
-       (- (velocity ship-state)
-          (* gravity dt))
-       (+ (velocity ship-state) 
-          (* (- (* engine-strength fuel-burn-rate) gravity)
-             dt)))                                      ; velocity
-   (if (>= (* fuel-burn-rate dt) (fuel ship-state))
+       (- (velocity ship-state) (* gravity dt))
+       (+ (velocity ship-state) (* (- (* engine-strength fuel-burn-rate) gravity) dt))) ; velocity
+   
+   (if (> (* fuel-burn-rate dt) (fuel ship-state))
        0
        (- (fuel ship-state) (* fuel-burn-rate dt)))))   ; fuel
 
@@ -56,7 +55,7 @@
                    0        ; not moving (0 km/sec)
                    20))     ; 20 kg of fuel left
 
-(define dt .7)               ; 1 second interval of simulation
+(define dt .1)               ; 1 second interval of simulation
   
 (define gravity 0.5)        ; 0.5 km/sec/sec
   
