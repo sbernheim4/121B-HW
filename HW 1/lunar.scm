@@ -1,33 +1,22 @@
 ;;; this is the code for problem set -- Lunar Lander
 (define (update ship-state fuel-burn-rate)
-  (if (> fuel-burn-rate 1)
-      (if (< (- (fuel ship-state) (* fuel-burn-rate dt)) 0)      
-          (make-ship-state
-           (+ (height ship-state) (* (velocity ship-state) dt)) ; height
+  (if (< (- (fuel ship-state) (* fuel-burn-rate dt)) 0)      
+      (make-ship-state
+       (+ (height ship-state) (* (velocity ship-state) dt)) ; height
 
-           (+ (velocity ship-state)
-              (* (- (* engine-strength 1) gravity) ; velocity
-                 dt))
-           (- (fuel ship-state) dt)) ; fuel
-
-          (make-ship-state
-           (+ (height ship-state) (* (velocity ship-state) dt)) ; height
-
-           (+ (velocity ship-state)
-              (* (- (* engine-strength fuel-burn-rate) gravity)
-                 dt))                                           ; velocity
-
-           (- (fuel ship-state) (* fuel-burn-rate dt)))) ; fuel
+       (+ (velocity ship-state)
+          (* (- (* engine-strength 1) gravity) ; velocity
+             dt))
+       (- (fuel ship-state) dt)) ; fuel
 
       (make-ship-state
-           (+ (height ship-state) (* (velocity ship-state) dt)) ; height
+       (+ (height ship-state) (* (velocity ship-state) dt)) ; height
 
-           (+ (velocity ship-state)
-              (* (- (* engine-strength (/ (fuel ship-state) dt)) gravity) ; velocity
-                 dt))
-   
-           (- (fuel ship-state) (* (/ (fuel ship-state) dt) dt))) ; fuel        
-      ))       
+       (+ (velocity ship-state)
+          (* (- (* engine-strength fuel-burn-rate) gravity)
+             dt))                                           ; velocity
+
+       (- (fuel ship-state) (* fuel-burn-rate dt))))) ; fuel           
 
 
 ; I added a second parameter called choice which would represent something like
