@@ -55,7 +55,7 @@
                    0        ; not moving (0 km/sec)
                    20))     ; 20 kg of fuel left
 
-(define dt .5)               ; 1 second interval of simulation
+(define dt .5)               ; 1 second interval of simulation()
   
 (define gravity 0.5)        ; 0.5 km/sec/sec
   
@@ -167,3 +167,6 @@
       1
       fuel-burn-rate
       ))
+; A procedure which optimizes the landing 
+(define (optimal-constant-acc ship-state)
+  ((height-choice no-burn constant-acc 29) ship-state))

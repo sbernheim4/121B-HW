@@ -48,3 +48,25 @@ Problem 6
 Problem 7 
 
 To prove this begin with the equation V_f = V_i^2 + 2ad where V_f is final velocity, V_i is initial velocity, a is acceleration and d is distance. V_f is 0 since when the rocket lands its velocity is 0. Then by subtracting 2ad from both sides and then dividing by 2d you get -a = V_i^2 / 2d and the negative only indicates direction so its relevance affecting the equation is insignificant. 
+
+--------------------------------------------------
+Problem 8 
+
+Implementing this procedure I just used the physics equation to solve for the fuel-burn-rate in terms of gravity, engine strength and acceleration. 
+
+--------------------------------------------------
+Problem 9 
+
+Running play twice, once with each procedure demonstrates that using 20 instead of 30 as the height threshold lands the ship using less fuel. 
+
+--------------------------------------------------
+Problem 10 
+
+Adding a procedure which takes fuel-burn-rate as an argument and then checks the value and then applying this procedure in the update method ensures that if the fuel-burn-rate > 1 then it is set back to 1. Otherwise its original value is returned. 
+
+--------------------------------------------------
+Problem 11
+
+To find the minimal height from which height-choice should be run, I tested different heights until I found the lowest height from which the ship could fall. Then I wrote the optimal-constant-acc procedure which uses this height as an argument. 
+
+
