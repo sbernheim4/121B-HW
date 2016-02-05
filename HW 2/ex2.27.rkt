@@ -1,3 +1,5 @@
+; Samuel Bernheim (bernheim@brandeis.edu) 2016-2-25
+
 ; This procedure gets the last element in a list by recursively calling cdr on a list until the list is empty
 ; The last element in the list is returned. 
 (define (get-last param)
@@ -27,3 +29,4 @@
   (reverse-iter x (list ))
 )
 
+(define deep-reverse )
