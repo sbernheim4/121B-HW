@@ -1,0 +1,8 @@
+Samuel Bernheim (bernheim@brandeis.edu) 2016-2-4
+
+Problem 2.22
+
+The reason the list is in reverse order is because when cons is used to bind (square (car things) and answer, answer after the first iteration of the list is 1 nil. Then when cons is called to bind 4 and answer answer becomes 4 1 nil. Then on the next pass through (car things) will return 3, (square 3) will return 9 and cons will then bind 9 to answer which was 4 1 and so answer will now be 9 4 1. This process will continue until things is an empty list. Essentially the most recent number is aded to the front of the list because the order of the cons is first (square (car things)) and then answer. 
+
+Problem 2.25
+(cdr (car (cdr (cdr z))))
