@@ -58,3 +58,7 @@
 
 (define (car z)
   (z (lambda (p q) p)))
+
+; cdr definition 
+(define (cdr z)
+  (z (lambda (p q) q)))
