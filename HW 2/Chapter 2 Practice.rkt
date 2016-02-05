@@ -39,4 +39,18 @@
   (= (* (numer x) (denom y))
      (* (numer y) (denom x))))
 
+; Exercise 2.2
+(define (print-point p)
+  (newline)
+  (display "(")
+  (display (x-point p))
+  (display ",")
+  (display (y-point p))
+  (display ")"))
+
+(define (point x y) (cons x y))
+(define (x-point p) (car p))
+(define (y-point p) (cdr p))
+
+; Exercise 2.4
 
