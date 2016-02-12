@@ -18,7 +18,7 @@
   (size-iter l 0)
 )
 
-; the list in reverse is returned 
+; the list is returned in reverse order
 (define (reverse x)
     (define (reverse-iter orig new)
       (let ((l (get-last orig)))
@@ -29,15 +29,13 @@
   (reverse-iter x (list ))
 )
 
+
+; the list is reversed with each sublist also in revserse order
 (define (deep-reverse x)
   (define (deep-reverse-iter orig new)
-    (if (= (size x) (size new))
+    (if (= (size x) (size new)) ; when the size of the new list is the size of the input list, the reversing is done
         new
         (deep-reverse-iter (cdr orig) (reverse (append new (list (reverse (car orig))))))
         ))
   (deep-reverse-iter x (list))
 )
-
-
-; (reverse (append (car x) (reverse (cdr x))))
-(define x (list (list 1 2 3) (list 4 5 6)))
