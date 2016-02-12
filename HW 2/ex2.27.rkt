@@ -33,7 +33,11 @@
   (define (deep-reverse-iter orig new)
     (if (= (size x) (size new))
         new
-        (deep-reverse-iter (reverse (list (cdr orig))) (append (list (car orig)) new))
+        (deep-reverse-iter (cdr orig) (reverse (append new (list (reverse (car orig))))))
         ))
-  (deep-reverse-iter x (list ))
-  )
+  (deep-reverse-iter x (list))
+)
+
+
+; (reverse (append (car x) (reverse (cdr x))))
+(define x (list (list 1 2 3) (list 4 5 6)))
