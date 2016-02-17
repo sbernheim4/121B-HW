@@ -32,7 +32,11 @@
   (pick-random '((you seem to think)
                  (you feel that)
                  (why do you believe)
-                 (why do you say))))
+                 (why do you say)
+                 (how is this negative)
+                 (what makes you feel)
+                 (where does this come from)
+                 )))
 
 (define (hedge)
   (pick-random '((please go on)

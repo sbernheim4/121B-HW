@@ -23,3 +23,14 @@ Problem 2.26
 
 Problem 2.27
 
+For this problem I started by writing a procedure which will return the last element in a list. I then wrote a procedure which gets the size of a list, and a procedure which will reverse the elements of a list, for example ((1 2 3) (4 5 6)) would become ((4 5 6) (1 2 3). This reverse procedure works using the previous two procedures to test when the list has been reversed and finding the last element in a list and attaching it to the new list. Then I wrote the deep reverse procedure using the reverse procedure. 
+
+———————————————————————————————————————————————————————————————————————————————
+LAB
+
+Question 1 
+
+I added the phrases  (how is this negative), (what makes you feel), (where does this come from) and (I can’t help you).
+
+Question 2
+
