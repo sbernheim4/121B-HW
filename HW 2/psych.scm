@@ -42,7 +42,10 @@
   (pick-random '((please go on)
                  (many people have the same sorts of feelings)
                  (many of my patients have told me the same thing)
-                 (please continue))))
+                 (please continue)
+                 (can you tell me more about your childhood)
+                 (this is interesting, can you expand)
+                 (I know many people with similar issues. maybe they could help you too))))
 
 (define (replace pattern replacement lst)
   (cond ((null? lst) '())
