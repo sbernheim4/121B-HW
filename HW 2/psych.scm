@@ -64,7 +64,7 @@
                      lst))))))
 
 (define (change-person phrase)
-  (many-replace '((i you) (me you) (am are) (my your))
+  (many-replace '((i you) (me you) (am are) (my your)  (are am) (you i) (your my))
                 phrase))
 
 (define (pick-random lst)

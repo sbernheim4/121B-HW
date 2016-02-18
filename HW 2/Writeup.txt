@@ -32,5 +32,8 @@ Question 1
 
 I added the phrases  (how is this negative), (what makes you feel), (where does this come from) and (I can’t help you).
 
+
 Question 2
+
+Originally, (change-person '(you are not being very helpful to me)) returned: (you are not being very helpful to you), but adding the additional pairs to the change-person procedure did not result in any change and as out put I still got (you are not being very helpful to you). 
 
