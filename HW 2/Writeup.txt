@@ -35,5 +35,5 @@ I added the phrases  (how is this negative), (what makes you feel), (where does 
 
 Question 2
 
-Originally, (change-person '(you are not being very helpful to me)) returned: (you are not being very helpful to you), but adding the additional pairs to the change-person procedure did not result in any change and as out put I still got (you are not being very helpful to you). 
+Originally, (change-person '(you are not being very helpful to me)) returned: (you are not being very helpful to you), but adding the additional pairs to the change-person procedure did not result in any change and as out put I still got (you are not being very helpful to you). After I changed the order of the pairs in the change-person procedure then the output changed. Now when (change-person '(you are not being very helpful to me)) was run, I got the output: (i am not being very helpful to you). 
 
