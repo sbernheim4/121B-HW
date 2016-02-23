@@ -15,31 +15,29 @@
   (let ((user-response (read)))
     (cond ((equal? user-response '(goodbye))
              (write-line (list 'goodbye name))
-             (write-line '(see you next week)) (append lst 'user-response))
+             (write-line '(see you next week)))
           (else (write-line (reply user-response lst))
-                (doctor-driver-loop name lst)))))
-
+                (doctor-driver-loop name (append lst user-response))))))
 
 (define (reply user-response lst)
   (let ((x (random 3)))
+    (display x)
   (cond ((eq? x 0)
            (append (qualifier)
                    (change-person user-response)))
         ((eq? x 1)
-           (append ('(earlier you said that) (random-chooser lst (random-index lst))))
+           (append '(earlier you said that) (random-chooser lst (random-index lst))))
         (else (hedge)))))
 
-; write a procedure which randomly chooses an item from a list
+; this procedure will randomly chooses an element from a list
 (define (random-chooser lst index)
-  (if ((eq? index 0) (car lst))
-      (random-chooser (cdr lst) (- index 1)))
-)
+  (if (eq? index 0)
+       (car lst)
+       (random-chooser (cdr lst) (- index 1))))
 
 ; this procedure will choose a random number between 0 and the size of a given list 
 (define (random-index lst)
-  (let (list-size (size lst))
-    (random (- list-size 1)))
-)
+    (random (size lst)))
 
 ; This procedure will get the size of a list 
 (define (size l)
@@ -50,10 +48,8 @@
   (size-iter l 0)
 )
 
-
 (define (fifty-fifty)
   (= (random 2) 0))
-
 
 
 (define (qualifier)
