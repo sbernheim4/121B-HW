@@ -17,7 +17,7 @@
              (write-line (list 'goodbye name))
              (write-line '(see you next week)))
           (else (write-line (reply user-response lst))
-                (doctor-driver-loop name (append lst user-response))))))
+                (doctor-driver-loop name (cons lst user-response))))))
 
 (define (reply user-response lst)
   (let ((x (random 3)))
@@ -29,11 +29,11 @@
            (append '(earlier you said that) (random-chooser lst (random-index lst))))
         (else (hedge)))))
 
-; this procedure will randomly chooses an element from a list given an index
+; this procedure will chooses an element from a list given an index
 (define (random-chooser lst index)
   (if (eq? index 0)
-       (car lst)
-       (random-chooser (cdr lst) (- index 1))))
+       (cdr lst)
+       (random-chooser (car lst) (- index 1))))
 
 ; this procedure will choose a random number between 0 and the size of a given list 
 (define (random-index lst)
