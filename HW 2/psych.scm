@@ -21,7 +21,6 @@
 
 (define (reply user-response lst)
   (let ((x (random 3)))
-    (display x)
   (cond ((eq? x 0)
            (append (qualifier)
                    (change-person user-response)))
@@ -71,6 +70,7 @@
                  (this is interesting, can you expand)
                  (I know many people with similar issues. maybe they could help you too))))
 
+; ORIGINAL replace PROCEDURE
 (define (replace pattern replacement lst)
   (cond ((null? lst) '())
         ((equal? (car lst) pattern)
@@ -79,6 +79,14 @@
         (else (cons (car lst)
               (replace pattern replacement (cdr lst))))))
 
+; NEW replace PROCEDURE
+(define (replace element replacement-pairs)
+  (cond ((null? replacement-pairs)
+        element)
+        ((eq? (car (car replacement-pairs)) element) (cadr (car replacement-pairs)))
+        (else (replace element (cdr replacement-pairs)))))
+
+; ORIGINAL many-replace PROCEDURE
 (define (many-replace replacement-pairs lst)
   (cond ((null? replacement-pairs) lst)
          (else (let ((pat-rep (car replacement-pairs)))
@@ -86,6 +94,15 @@
                      (cadr pat-rep)
                      (many-replace (cdr replacement-pairs)
                      lst))))))
+
+; NEW many-replace PROCEDURE
+(define (many-replace replacement-pairs sencetnce)
+  (cond ((null> replacement-pairs)
+         sentence)
+        ((null? sentence) null)
+        (else (cons (replace (car sentence) replacement-pairs)
+                    (many-replace replacement-pairs (cdr sentence))))))
+
 
 (define (change-person phrase)
   (many-replace '((me you) (are am) (you i) (your my) (i you) (am are) (my your))
@@ -117,6 +134,3 @@
 (define (write-line x) (begin (write x) (newline)))
 
 ;;******
-
-;; DELETEABLE WORK HERE
-(define x '((me you) (are am) (you i) (your my) (i you) (am are) (my your)))
