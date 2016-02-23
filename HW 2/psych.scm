@@ -29,7 +29,7 @@
            (append '(earlier you said that) (random-chooser lst (random-index lst))))
         (else (hedge)))))
 
-; this procedure will randomly chooses an element from a list
+; this procedure will randomly chooses an element from a list given an index
 (define (random-chooser lst index)
   (if (eq? index 0)
        (car lst)
@@ -37,7 +37,9 @@
 
 ; this procedure will choose a random number between 0 and the size of a given list 
 (define (random-index lst)
-    (random (size lst)))
+  (if (= (size lst) 0)
+      (hedge)
+      (random (size lst))))
 
 ; This procedure will get the size of a list 
 (define (size l)
