@@ -7,26 +7,54 @@
 (define (visit-doctor name)
   (write-line (list 'hello name))
   (write-line '(what seems to be the trouble?))
-  (doctor-driver-loop name))
+  (doctor-driver-loop name '()))
 
-(define (doctor-driver-loop name)
+(define (doctor-driver-loop name lst)
   (newline)
   (write '**)
   (let ((user-response (read)))
     (cond ((equal? user-response '(goodbye))
              (write-line (list 'goodbye name))
-             (write-line '(see you next week)))
-          (else (write-line (reply user-response))
-                (doctor-driver-loop name)))))
+             (write-line '(see you next week)) (append lst 'user-response))
+          (else (write-line (reply user-response lst))
+                (doctor-driver-loop name lst)))))
 
-(define (reply user-response)
-  (cond ((fifty-fifty)
+
+(define (reply user-response lst)
+  (let ((x (random 3)))
+  (cond ((eq? x 0)
            (append (qualifier)
                    (change-person user-response)))
-        (else (hedge))))
+        ((eq? x 1)
+           (append ('(earlier you said that) (random-chooser lst (random-index lst))))
+        (else (hedge)))))
+
+; write a procedure which randomly chooses an item from a list
+(define (random-chooser lst index)
+  (if ((eq? index 0) (car lst))
+      (random-chooser (cdr lst) (- index 1)))
+)
+
+; this procedure will choose a random number between 0 and the size of a given list 
+(define (random-index lst)
+  (let (list-size (size lst))
+    (random (- list-size 1)))
+)
+
+; This procedure will get the size of a list 
+(define (size l)
+  (define (size-iter l count)
+    (if (null? l)
+        count
+        (size-iter (cdr l) (+ 1 count))))
+  (size-iter l 0)
+)
+
 
 (define (fifty-fifty)
   (= (random 2) 0))
+
+
 
 (define (qualifier)
   (pick-random '((you seem to think)
@@ -34,7 +62,7 @@
                  (why do you believe)
                  (why do you say)
                  (how is this negative)
-                 (what makes you feel)
+                 (what makes you feel bad)
                  (where does this come from)
                  )))
 
@@ -64,7 +92,7 @@
                      lst))))))
 
 (define (change-person phrase)
-  (many-replace '( (me you) (are am) (you i) (your my)    (i you)  (am are) (my your))
+  (many-replace '((me you) (are am) (you i) (your my) (i you) (am are) (my your))
                 phrase))
 
 (define (pick-random lst)
@@ -94,3 +122,5 @@
 
 ;;******
 
+;; DELETEABLE WORK HERE
+(define x '((me you) (are am) (you i) (your my) (i you) (am are) (my your)))
