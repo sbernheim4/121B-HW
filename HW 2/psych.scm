@@ -37,9 +37,7 @@
 
 ; this procedure will choose a random number between 0 and the size of a given list 
 (define (random-index lst)
-  (if (= (size lst) 0)
-      (hedge)
-      (random (size lst))))
+      (random (size lst)))
 
 ; This procedure will get the size of a list 
 (define (size l)
