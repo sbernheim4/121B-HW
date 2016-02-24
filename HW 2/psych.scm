@@ -21,18 +21,19 @@
 
 (define (reply user-response lst)
   (let ((x (random 3)))
+  (newline)
   (cond ((eq? x 0)
            (append (qualifier)
                    (change-person user-response)))
         ((and (eq? x 1) (not (null? lst)))
-           (append '(earlier you said that) (random-chooser lst (random-index lst))))
+           (append '(earlier you said that) (index-chooser lst (random-index lst))))
         (else (hedge)))))
 
 ; this procedure will chooses an element from a list given an index
-(define (random-chooser lst index)
-  (if (eq? index 1)
+(define (index-chooser lst index)
+  (if (eq? index 0)
        (cdr lst)
-       (random-chooser (car lst) (- index 1))))
+       (index-chooser (car lst) (- index 1))))
 
 ; this procedure will choose a random number between 0 and the size of a given list 
 (define (random-index lst)
@@ -134,3 +135,6 @@
 (define (write-line x) (begin (write x) (newline)))
 
 ;;******
+
+
+(define x '(((((((((((() nothing) 1 1) 1 2) 1 3) 1 4) 1 5) 1 6) 1 7) 1 8) 1 8)))
