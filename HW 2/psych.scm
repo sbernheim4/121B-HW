@@ -24,13 +24,13 @@
   (cond ((eq? x 0)
            (append (qualifier)
                    (change-person user-response)))
-        ((eq? x 1)
+        ((and (eq? x 1) (not (null? lst)))
            (append '(earlier you said that) (random-chooser lst (random-index lst))))
         (else (hedge)))))
 
 ; this procedure will chooses an element from a list given an index
 (define (random-chooser lst index)
-  (if (eq? index 0)
+  (if (eq? index 1)
        (cdr lst)
        (random-chooser (car lst) (- index 1))))
 
@@ -96,10 +96,10 @@
                      lst))))))
 
 ; NEW many-replace PROCEDURE
-(define (many-replace replacement-pairs sencetnce)
-  (cond ((null> replacement-pairs)
+(define (many-replace replacement-pairs sentence)
+  (cond ((null? replacement-pairs)
          sentence)
-        ((null? sentence) null)
+        ((null? sentence) sentence)
         (else (cons (replace (car sentence) replacement-pairs)
                     (many-replace replacement-pairs (cdr sentence))))))
 
