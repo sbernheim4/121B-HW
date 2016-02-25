@@ -2,14 +2,15 @@
 
 (define (fringe tree lst)
   (let ((last-element (get-last tree)))
-    
+    (append lst last-element)
+    (fringe (car tree) lst)
   ))
 
 (define (get-last param)
   (define (get-last-iter param last)
-  (if (null? param)
-      last
-      (get-last-iter (cdr param) (car param))))
+    (if (null? param)
+        last
+        (get-last-iter (cdr param) (car param))))
   (get-last-iter param 0))
 
 
