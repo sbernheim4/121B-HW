@@ -4,31 +4,50 @@
 (#%require (only racket/base random))
 ; *******************
 
-(define (visit-doctor name)
+; I added the parameter max-number-patients 
+(define (visit-doctor name max-num-patients)
   (write-line (list 'hello name))
   (write-line '(what seems to be the trouble?))
-  (doctor-driver-loop name '()))
+  (doctor-driver-loop name '() max-num-patients))
 
-(define (doctor-driver-loop name lst)
+; A procedure which will determine if the loop should continue or if the doctor is done for the day based on
+; if the docotor has seen all the patients he can.
+(define (auto-start num-patients)
+  (cond ((= num-patients 0)
+         (write-line '(done for the day)))
+        (else (continue num-patients))))
+
+; This procedure will continue the doctors routine by asking the new patient their name and then calling
+; visit doctor 
+(define (continue num-patients)
+  (write-line '(WHO ARE YOU?))
+   (let ((name (read)))
+     (visit-doctor (car name) num-patients)))
+
+; I added the lst and max-number-patients parameters to the loop to keep track of this info. 
+(define (doctor-driver-loop name lst max-num-patients)
+  (display max-num-patients)
   (newline)
   (write '**)
   (let ((user-response (read)))
-    (cond ((equal? user-response '(goodbye))
+    (cond ((equal? user-response '(goodbye)) ; if the user enters goodbye
              (write-line (list 'goodbye name))
-             (write-line '(see you next week)))
-          ((equal? user-response '(suppertime))
-              (write-line '(i have to go))
-              (write-line '(bye)))
-          (else (write-line (reply user-response lst))
-                (doctor-driver-loop name (cons lst user-response))))))
+             (write-line '(see you next week))
+             (write-line '(NEXT!))
+             (auto-start (- max-num-patients 1)))
+          ((equal? user-response '(suppertime)) ; if the response of a user is suppertime
+             (write-line '(time to go home)))
+          (else (write-line (reply user-response lst)) ; else call the doctor driver loop and continue seeing the current patient
+             (doctor-driver-loop name (cons lst user-response))))))
 
+; reply now has three options based on if the random number is a 0, 1 or 2
 (define (reply user-response lst)
   (let ((x (random 3)))
-  (newline)
   (cond ((eq? x 0)
            (append (qualifier)
                    (change-person user-response)))
         ((and (eq? x 1) (not (null? lst)))
+         ;             beginning phrase        randomly chooses a previous response 
            (append '(earlier you said that) (index-chooser lst (random-index lst))))
         (else (hedge)))))
 
@@ -74,30 +93,12 @@
                  (this is interesting, can you expand)
                  (I know many people with similar issues. maybe they could help you too))))
 
-; ORIGINAL replace PROCEDURE
-(define (replace pattern replacement lst)
-  (cond ((null? lst) '())
-        ((equal? (car lst) pattern)
-           (cons replacement
-                 (replace pattern replacement (cdr lst))))
-        (else (cons (car lst)
-              (replace pattern replacement (cdr lst))))))
-
 ; NEW replace PROCEDURE
 (define (replace target replacement-pairs)
   (cond ((null? replacement-pairs)
         target)
         ((eq? (car (car replacement-pairs)) target) (cadr (car replacement-pairs)))
         (else (replace target (cdr replacement-pairs)))))
-
-; ORIGINAL many-replace PROCEDURE
-(define (many-replace replacement-pairs lst)
-  (cond ((null? replacement-pairs) lst)
-         (else (let ((pat-rep (car replacement-pairs)))
-            (replace (car pat-rep)
-                     (cadr pat-rep)
-                     (many-replace (cdr replacement-pairs)
-                     lst))))))
 
 ; NEW many-replace PROCEDURE
 (define (many-replace replacement-pairs sentence)
@@ -106,7 +107,6 @@
         ((null? sentence) sentence)
         (else (cons (replace (car sentence) replacement-pairs)
                     (many-replace replacement-pairs (cdr sentence))))))
-
 
 (define (change-person phrase)
   (many-replace '((me you) (are am) (you i) (your my) (i you) (am are) (my your))

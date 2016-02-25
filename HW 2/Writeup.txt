@@ -42,3 +42,4 @@ To store all the responses I made the doctor-driver-loop take in an additional p
 
 Question 4 
 
+To handle the case of a user entering the keyword suppertime, I added an extra condition to the driver-loop saying if the user-response equaled suppertime, then perform the corresponding actions. For the automatic continuation for the doctor I made it so that upon entering goodbye, then the appropriate phrases will be printed and then auto-start (a procedure I wrote) gets executed. Auto-start takes in as a parameter the number of patients the doctor can see. If that number is 0, then the phrase done for the day is printed to the console. If not, then another procedure called continue (which I also wrote) is called. Continue which takes the number of patients the doctor can see as a parameter, will then print who are you, read in the users name, and then call visit doctor passing the appropriate parameters.
