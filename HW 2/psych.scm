@@ -16,6 +16,9 @@
     (cond ((equal? user-response '(goodbye))
              (write-line (list 'goodbye name))
              (write-line '(see you next week)))
+          ((equal? user-response '(suppertime))
+              (write-line '(i have to go))
+              (write-line '(bye)))
           (else (write-line (reply user-response lst))
                 (doctor-driver-loop name (cons lst user-response))))))
 
