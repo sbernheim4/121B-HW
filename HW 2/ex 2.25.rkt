@@ -1,7 +1,11 @@
 ;Samuel Bernheim (bernheim@brandeis.edu) 2016-2-25
 
-(define z (cons 1 (cons 3 (cons (cons 5 7) 9))))
+(define x '(1 3 (5 7) 9))
+(car (cdr (car (cdr (cdr x)))))
 
-(cdr (car (cdr (cdr z))))
+(define y (list (list 7)))
+(car (car y))
 
+(define z '(1 (2 (3 (4 (5 (6 7)))))))
+(car (cdr (car (cdr (car (cdr (car (cdr (car (cdr (car (cdr z))))))))))))
 
