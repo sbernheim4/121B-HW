@@ -84,11 +84,11 @@
               (replace pattern replacement (cdr lst))))))
 
 ; NEW replace PROCEDURE
-(define (replace element replacement-pairs)
+(define (replace target replacement-pairs)
   (cond ((null? replacement-pairs)
-        element)
-        ((eq? (car (car replacement-pairs)) element) (cadr (car replacement-pairs)))
-        (else (replace element (cdr replacement-pairs)))))
+        target)
+        ((eq? (car (car replacement-pairs)) target) (cadr (car replacement-pairs)))
+        (else (replace target (cdr replacement-pairs)))))
 
 ; ORIGINAL many-replace PROCEDURE
 (define (many-replace replacement-pairs lst)
@@ -138,6 +138,3 @@
 (define (write-line x) (begin (write x) (newline)))
 
 ;;******
-
-
-(define x '(((((((((((() nothing) 1 1) 1 2) 1 3) 1 4) 1 5) 1 6) 1 7) 1 8) 1 8)))

@@ -32,11 +32,13 @@ Question 1
 
 I added the phrases  (how is this negative), (what makes you feel), (where does this come from) and (I can’t help you).
 
-
 Question 2
 
-Originally, (change-person '(you are not being very helpful to me)) returned: (you are not being very helpful to you), but adding the additional pairs to the change-person procedure did not result in any change and as out put I still got (you are not being very helpful to you). After I changed the order of the pairs in the change-person procedure the output changed to: (i am not being very helpful to you). 
-
+Originally, (change-person '(you are not being very helpful to me)) returned: (you are not being very helpful to you), but adding the additional pairs to the change-person procedure did not result in any change.  After I changed the order of the pairs in the change-person procedure the output changed to: (i am not being very helpful to you). The bug which occurs is that once a change is made from you to i for example when run again the phrase will be changed back from i to you since currently the replacement procedure is running like a double for loop and changing words multiple times instead of just once. To remedy this I rewrote the replace and the many-replace procedures. The new replace procedure works by first checking if the replacement-pairs list is null. If so the target which would have been replaced is just returned. Otherwise if replacement-pairs is not null, I get the (car (car replacement-pairs)) which is the word I am looking for which will be replaced and seeing if it is equal to the target which could be replaced. If these two words are equal, then I get the corresponding word from the replacement-pair pairing and return that value. Otherwise I call replace passing in the same target and the cdr of replacement-pairs to see if the target word matches any other patterns in the replacement-pairs list. Many-replace now takes a list of replacement-pairs and a sentence and works in the following way. If the replacement-pairs list is null then the sentence is returned. If sentence is null sentence is returned. Otherwise a cons is made between (replace (car sentence) replacement-pairs). This simply calls replace on the first word of the sentence and the replacement-pairs list. Many-replace is then called on the cdr of sentence (so now word is changed more than once) and the same replacement-pairs list.  
 
 Question 3 
+
+To store all the responses I made the doctor-driver-loop take in an additional parameter called lst which will be a list of all responses. On each recursive call of the loop I pass in for this lst parameter the cons of lst and user-response adding the user-response to lst. Then to use this list of user responses I wrote several procedures. One for choosing a random number between 0 and the size of the list, one for then choosing the response given an index. Then to the reply procedure I made it randomly choose between one of three options, two of which are the hedge or qualifier procedures. The new procedure now will test to ensure the lst of user responses is not null and will then call append to the list earlier you said that and a random phrase from the lst of user-responses. 
+
+Question 4 
 
