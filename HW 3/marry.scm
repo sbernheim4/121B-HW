@@ -14,7 +14,13 @@
 
 (define (send list-of-people message) ... )
 
-(define (couple? person1 person2) ...)
+; Check to see if the person person1 likes is the same as person2 and if the person person2 likes is person 1
+; if this is true return true. Otherwise return false. 
+(define (couple? person1 person2)
+  (let ((intended1 (person1 'intended)) (intended2 (person2 'intended)))
+    (if (and (eq? intended1 person2) (eq? intended2 person1))
+        (= 1 1)
+        (= 1 2))))
 
 (define (zip-together list1 list2)
   (if (null? list1)
