@@ -1,3 +1,8 @@
+;1. (courtship ⟨unengaged proposers⟩ ⟨proposers⟩ ⟨proposees⟩)
+;3. (currently-unengaged ⟨list⟩)
+;4. (send ⟨list⟩ ⟨message⟩)
+;5. (i-like-more? ⟨person1⟩ ⟨person2⟩)
+
 ;; This is the code for -- Stable Marriage
 
 (define (match-make proposers proposees)
@@ -10,7 +15,22 @@
 
 (define (courtship unengaged-proposers proposers proposees) ... )
 
-(define (currently-unengaged list-of-people) ... )
+
+
+(define (currently-unengaged list-of-people)
+  (cond ((null? list-of-people) '())
+        ((eq? ((car list-of-people) 'intended) '()) (set! list-of-people (append (cdr list-of-people) (car list-of-people)))
+        (else (begin
+                (set! list-of-people (cdr list-of-people))
+                (if (all-unengaged? list-of-people)
+                    list-of-people
+                    (currently-unengaged list-of-people)))))))
+
+; given a list of people, this procedure determines if everyone in that list is unengaged. 
+(define (all-unengaged? lst-people)
+  (if (eq? ((car lst-people) 'intended) '())
+      (all-unengaged? (cdr lst-people))
+      (= 1 2)))
 
 (define (send list-of-people message) ... )
 
