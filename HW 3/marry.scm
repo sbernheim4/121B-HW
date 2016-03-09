@@ -10,17 +10,32 @@
 
 (define (courtship unengaged-proposers proposers proposees) ... )
 
-(define (currently-unengaged list-of-people) ... )
-
-(define (send list-of-people message) ... )
-
 ; Check to see if the person person1 likes is the same as person2 and if the person person2 likes is person 1
 ; if this is true return true. Otherwise return false. 
 (define (couple? person1 person2)
   (let ((intended1 (person1 'intended)) (intended2 (person2 'intended)))
     (if (and (eq? intended1 person2) (eq? intended2 person1))
-        (= 1 1)
-        (= 1 2))))
+        #t
+        #f)))
+
+; given two people and a third person C, as a lambda variable, the person C likes more will be returned 
+(define (i-like-more? person1 person2)
+  (lambda (me)
+  (let ((index1 (get-index person1 (me 'loves) 0)) (index2 (get-index person2 (me 'loves) 0)))
+    (if (> index1 index2)
+        person1
+        person2))))
+
+; given a list, and an element and an index to start from, the index of where element appears in list will be returned
+(define (get-index element lst index)
+  (cond ((null? lst) -1)
+        ((eq? (car lst) element) (+ index 1))
+        (else (get-index element (cdr lst) (+ index 1)))))
+
+;(define (currently-unengaged list-of-people) ... )
+
+;(define (send list-of-people message) ... )
+
 
 (define (zip-together list1 list2)
   (if (null? list1)
@@ -60,7 +75,17 @@
                      (begin (set! current-intended beloved)
                             'we-are-engaged)
                      'no-one-loves-me)))
-            ((eq? message 'i-love-you) ... )
+            ((eq? message 'i-love-you)
+             (lambda (receiver)
+               ; if the receiver is unengaged then ........ set the receiver's intended to me and return i-love-you-too
+               (cond ((eq? (receiver 'intended) '()) (begin (set! (receiver 'intended) me) '(i-love-you-too)))
+                     ; if the receiver is engaged, determine if the receiver likes their current intended or the proposer more and then either
+                     ; change the engagement and return i-love-you-too or return buzz-off-creep 
+                     ((eq? (i-like-more? me (receiver 'intended) receiver) me)
+                          (begin (set! (receiver 'intended) me) '(i-love-you-too))
+                          '(buzz-off-creep))
+                     (else '(buzz-off-creep))
+                     )))
             ((eq? message 'i-changed-my-mind)
                (lambda (lost-love)
                   (cond ((eq? current-intended lost-love)
