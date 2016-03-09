@@ -1,8 +1,3 @@
-;1. (courtship ⟨unengaged proposers⟩ ⟨proposers⟩ ⟨proposees⟩)
-;3. (currently-unengaged ⟨list⟩)
-;4. (send ⟨list⟩ ⟨message⟩)
-;5. (i-like-more? ⟨person1⟩ ⟨person2⟩)
-
 ;; This is the code for -- Stable Marriage
 
 (define (match-make proposers proposees)
@@ -15,26 +10,17 @@
 
 (define (courtship unengaged-proposers proposers proposees) ... )
 
-
-
-(define (currently-unengaged list-of-people)
-  (cond ((null? list-of-people) '())
-        ((eq? ((car list-of-people) 'intended) '()) (set! list-of-people (append (cdr list-of-people) (car list-of-people)))
-        (else (begin
-                (set! list-of-people (cdr list-of-people))
-                (if (all-unengaged? list-of-people)
-                    list-of-people
-                    (currently-unengaged list-of-people)))))))
-
-; given a list of people, this procedure determines if everyone in that list is unengaged. 
-(define (all-unengaged? lst-people)
-  (if (eq? ((car lst-people) 'intended) '())
-      (all-unengaged? (cdr lst-people))
-      (= 1 2)))
+(define (currently-unengaged list-of-people) ... )
 
 (define (send list-of-people message) ... )
 
-(define (couple? person1 person2) ...)
+; Check to see if the person person1 likes is the same as person2 and if the person person2 likes is person 1
+; if this is true return true. Otherwise return false. 
+(define (couple? person1 person2)
+  (let ((intended1 (person1 'intended)) (intended2 (person2 'intended)))
+    (if (and (eq? intended1 person2) (eq? intended2 person1))
+        (= 1 1)
+        (= 1 2))))
 
 (define (zip-together list1 list2)
   (if (null? list1)
