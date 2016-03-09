@@ -78,11 +78,11 @@
             ((eq? message 'i-love-you)
              (lambda (receiver)
                ; if the receiver is unengaged then ........ set the receiver's intended to me and return i-love-you-too
-               (cond ((eq? (receiver 'intended) '()) (begin (set! (receiver 'intended) me) '(i-love-you-too)))
+               (cond ((eq? (receiver 'intended) '()) (begin (set-car! (receiver 'intended) me) '(i-love-you-too)))
                      ; if the receiver is engaged, determine if the receiver likes their current intended or the proposer more and then either
                      ; change the engagement and return i-love-you-too or return buzz-off-creep 
                      ((eq? (i-like-more? me (receiver 'intended) receiver) me)
-                          (begin (set! (receiver 'intended) me) '(i-love-you-too))
+                          (begin (set-car! (receiver 'intended) me) '(i-love-you-too))
                           '(buzz-off-creep))
                      (else '(buzz-off-creep))
                      )))
