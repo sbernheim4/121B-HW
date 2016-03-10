@@ -32,9 +32,9 @@
         ((eq? (car lst) element) (+ index 1))
         (else (get-index element (cdr lst) (+ index 1)))))
 
-;(define (currently-unengaged list-of-people) ... )
+(define (currently-unengaged list-of-people) ... )
 
-;(define (send list-of-people message) ... )
+(define (send list-of-people message) ... )
 
 
 (define (zip-together list1 list2)
