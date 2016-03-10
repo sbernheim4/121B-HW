@@ -18,13 +18,13 @@
         #t
         #f)))
 
-; given two people and a third person C, as a lambda variable, the person C likes more will be returned 
+; given two people, and a third person C as a lambda variable, the person C likes more will be returned 
 (define (i-like-more? person1 person2)
   (lambda (me)
   (let ((index1 (get-index person1 (me 'loves) 0)) (index2 (get-index person2 (me 'loves) 0)))
     (if (> index1 index2)
-        person1
-        person2))))
+        person2
+        person1))))
 
 ; given a list, and an element and an index to start from, the index of where element appears in list will be returned
 (define (get-index element lst index)
@@ -32,10 +32,18 @@
         ((eq? (car lst) element) (+ index 1))
         (else (get-index element (cdr lst) (+ index 1)))))
 
-(define (currently-unengaged list-of-people) ... )
+(define (currently-unengaged list-of-people)
+  (lambda (unengaged-list)
+          ;if everyone has been checked return unengaged list 
+    (cond ((null? list-of-people) unengaged-list)
+          ; if the first person is unengaged make the recursive call but first adding the first person to the lambda list parameter using set!
+          ((null? ((car list-of-people) 'intended)) (begin (set! unengaged-list (append unengaged-list (car list-of-people))) ((currently-unengaged (cdr list-of-people)) unengaged-list)))
+          ; otherwise make the recursive call on the cdr of the list-of-people
+          (else ((currently-unengaged (cdr list-of-people)) unengaged-list)))))
 
-(define (send list-of-people message) ... )
-
+(define (send list-of-people message)
+  (cond ((null? list-of-people) 1)
+        (else ((car list-of-people) message) (send (cdr list-of-people) message))))
 
 (define (zip-together list1 list2)
   (if (null? list1)
@@ -76,16 +84,14 @@
                             'we-are-engaged)
                      'no-one-loves-me)))
             ((eq? message 'i-love-you)
-             (lambda (receiver)
-               ; if the receiver is unengaged then ........ set the receiver's intended to me and return i-love-you-too
-               (cond ((eq? (receiver 'intended) '()) (begin (set-car! (receiver 'intended) me) '(i-love-you-too)))
+             (lambda (asker)
+               ; if the proposer is unengaged then set the receiver's intended to asker and return i-love-you-too
+               (cond ((null? current-intended) (begin (set! current-intended asker) 'i-love-you-too))
                      ; if the receiver is engaged, determine if the receiver likes their current intended or the proposer more and then either
                      ; change the engagement and return i-love-you-too or return buzz-off-creep 
-                     ((eq? (i-like-more? me (receiver 'intended) receiver) me)
-                          (begin (set-car! (receiver 'intended) me) '(i-love-you-too))
-                          '(buzz-off-creep))
-                     (else '(buzz-off-creep))
-                     )))
+                     ((eq? (i-like-more? current-intended asker) asker)
+                          (begin ((car current-intended) 'i-changed-my-mind) (set! current-intended asker) 'i-love-you-too))
+                     (else 'buzz-off-creep))))
             ((eq? message 'i-changed-my-mind)
                (lambda (lost-love)
                   (cond ((eq? current-intended lost-love)
