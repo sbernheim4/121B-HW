@@ -42,8 +42,7 @@
           (else ((currently-unengaged (cdr list-of-people)) unengaged-list)))))
 
 (define (send list-of-people message)
-  (cond ((null? list-of-people) 1)
-        (else ((car list-of-people) message) (send (cdr list-of-people) message))))
+  (if (not (null? list-of-people)) (begin (send (cdr list-of-people) message) ((car list-of-people) message))))
 
 (define (zip-together list1 list2)
   (if (null? list1)
