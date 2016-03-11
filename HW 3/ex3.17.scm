@@ -1,5 +1,4 @@
 (define (contains? lst element)
-  (display lst)
   (cond ((null? lst) #f)
         ((eq? (car lst) element) #t)
         (else (contains? (cdr lst) element))))
@@ -11,7 +10,6 @@
 
 (define (good-count lst already-seen counter)
   (cond ((null? lst) counter)
-        ((not (contains? already-seen (car lst))) (begin (set! already-seen (append already-seen (car lst))) (good-count (cdr lst) already-seen (+ counter 1))))
+        ((not (contains? already-seen (car lst))) (begin (set! already-seen (append already-seen (car lst) )) (good-count (cdr lst) already-seen (+ counter 1))))
         (else (good-count (cdr lst) already-seen (+ counter 1)))))
 
-(define lst (list 1 2 3 4 5))
