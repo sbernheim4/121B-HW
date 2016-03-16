@@ -8,7 +8,15 @@
                 (send
                  (send proposers 'intended) 'name)))
 
-(define (courtship unengaged-proposers proposers proposees) ... )
+(define (courtship unengaged-proposers proposers proposees)
+  (if (null? unengaged-proposers)
+      '()
+       (begin ((car unengaged-proposers) 'propose) (courtship (currently-unengaged proposers) proposers proposees))))
+
+(define (send list-of-people message)
+  (if (null? list-of-people)
+      #t
+      (begin ((car list-of-people) message) (send (cdr list-of-people) message))))
 
 ; Check to see if the person person1 likes is the same as person2 and if the person person2 likes is person 1
 ; if this is true return true. Otherwise return false. 
@@ -40,11 +48,6 @@
           ((null? ((car list-of-people) 'intended)) (begin (set! unengaged-list (append unengaged-list (car list-of-people))) ((currently-unengaged (cdr list-of-people)) unengaged-list)))
           ; otherwise make the recursive call on the cdr of the list-of-people
           (else ((currently-unengaged (cdr list-of-people)) unengaged-list)))))
-
-(define (send list-of-people message)
-  (if (null? list-of-people)
-      #t
-      (begin ((car list-of-people) message) (send (cdr list-of-people) message))))
 
 
 (define (zip-together list1 list2)
