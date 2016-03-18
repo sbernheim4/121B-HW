@@ -130,5 +130,71 @@
       the-empty-stream
       (cons-stream low (enumerate-interval (1+ low) high))))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;My Work
+
+(define ones (cons-stream 1 ones))
+
+(define integers (cons-stream 1 (add-streams ones integers)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;Problem 1
+
+(define (no-2-3-5 x)
+  (cond ((divisible? x 2) #f)
+        ((divisible? x 3) #f)
+        ((divisible? x 5) #f)
+        (else #t)))
+
+(define my-stream (stream-filter no-2-3-5 integers))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;Problem 2
+
+(define (not-disvisible-by-seven? a)
+  (if (not (integer? (/ a 7))) #t #f))
+
+(define (not-disvisible-by-three? a)
+  (if (not (integer? (/ a 3))) #t #f))
+
+(define seven-stream (stream-filter not-disvisible-by-seven? integers))
+(define three-stream (stream-filter not-disvisible-by-three? integers))
+
+(define interleaved-stream (interleave seven-stream three-stream))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;Problem 3 
+
+(define alt (cons-stream 0 (interleave integers alt)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;Problem 4
+
+(define (even? x) (if (integer? (/ x 2)) #t #f))
+(define (odd? x) (not (even? x)))
+
+(define even-stream (stream-filter even? integers))
+(define odd-stream (stream-filter odd? integers))
+
+(define (merge s1 s2)
+     (cond ((empty-stream? s1) s2)
+           ((empty-stream? s2) s1)
+           (else
+            (let ((h1 (stream-car s1))
+                  (h2 (stream-car s2)))
+              (cond ((< h1 h2)
+                     (cons-stream h1 (merge (stream-cdr s1) s2)))
+                    ((> h1 h2)
+                     (cons-stream h2 (merge s1 (stream-cdr s2))))
+                    (else
+                     (cons-stream h1 (merge (stream-cdr s1)
+                                            (stream-cdr s2)))))))))
+
+
 
 

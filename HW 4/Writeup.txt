@@ -1,0 +1,16 @@
+Samuel Bernheim (bernheim@brandeis.edu) 2016-3-21
+
+Problem 1 
+
+Testing the ones and integers procedure using (print-stream ones) and (print-stream integers), I see that both work. The ones procedure outputs a list of ones and the integers procedure outputs a list of integers from 1 to infinity or until I stop the execution. I wrote a procedure which will test if a number is not divisible by 2, 3 or 5. Then I used the filter procedure passing in this procedure as the predicate and the integers stream as the stream to produce the stream of numbers not divisible by 2, 3 or 5. 
+
+Problem 2 
+
+I wrote two procedures, one to test if a number is divisible by 7 and one to test if a number is divisible by 3. Then I used this to create two streams, one of numbers not divisible by 7 and one of numbers not divisible by 3. Then I used interleave to combine the two streams. I then called print-stream on this new stream. The first few numbers were: 1 1 2 2 3 4 4 5 5 7 6 8 8 10 9 …
+
+Problem 3
+
+This new stream has several properties. First, if the index starts at 1, then every value at an even index is the index divided by 2. Second, looking at all the values at odd indices, 0 0 1 0 2 1 3 0 4 2 5, every other value starting from the first increases by 1. So taking every other value would take the values at index 1, 5, 9, 13 … and their corresponding values you get 0 1 2 3 4 … and this continues. The remaining values at indices 3, 7, 11, 15, 19 are 0 0 1 0 2 … What is interesting here is that these values repeat the original values for all odd indices. This is because alt is an inductively defined stream and so when it gets cons with itself it repeats these patterns.
+
+Problem 4
+
