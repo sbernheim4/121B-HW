@@ -14,3 +14,11 @@ This new stream has several properties. First, if the index starts at 1, then ev
 
 Problem 4
 
+For problem 4 I wrote a procedure which given two streams will produce another stream where each element is a pair. For example given the streams integers integers as parameters the output stream will be 
+                 (1 2) (1 3) (1 4) (1 5)…
+                       (2 3) (2 4) (2 5)…
+                             (3 4) (3 5)…
+                                   .
+                                   .
+                                   . 
+Problem 5

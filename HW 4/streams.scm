@@ -175,26 +175,9 @@
 
 ;Problem 4
 
-(define (even? x) (if (integer? (/ x 2)) #t #f))
-(define (odd? x) (not (even? x)))
-
-(define even-stream (stream-filter even? integers))
-(define odd-stream (stream-filter odd? integers))
-
-(define (merge s1 s2)
-     (cond ((empty-stream? s1) s2)
-           ((empty-stream? s2) s1)
-           (else
-            (let ((h1 (stream-car s1))
-                  (h2 (stream-car s2)))
-              (cond ((< h1 h2)
-                     (cons-stream h1 (merge (stream-cdr s1) s2)))
-                    ((> h1 h2)
-                     (cons-stream h2 (merge s1 (stream-cdr s2))))
-                    (else
-                     (cons-stream h1 (merge (stream-cdr s1)
-                                            (stream-cdr s2)))))))))
-
-
-
+(define (interleave-pairs s1 s2)
+  (cons-stream (stream-map (lambda (x) (cons (stream-car s1) x))
+                            (stream-cdr s2))
+               (interleave-pairs (stream-cdr s1)
+                           (stream-cdr s2))))
 
