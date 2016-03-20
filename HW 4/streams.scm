@@ -172,15 +172,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;Problem 4
-; this will produce (1 1) (1 2)       ...(1 inf)
-;                         (2 2) (2 3) ...(2 inf)
-;                               (3 3) ...(3 inf)
-;                                    etc
-(define (interleave-pairs s1 s2)
-  (cons-stream (stream-map (lambda (x) (cons (stream-car s1) x))
-                            s2)
-               (interleave-pairs (stream-cdr s1)
-                           (stream-cdr s2))))
 
 (define (interleave-pairs s t)
      (cons-stream (cons (stream-car s) (stream-car t))
@@ -198,4 +189,16 @@
 
 (define ev (stream-filter divisible-2 integers))
 (define odd (stream-filter not-divisible-2 integers))
+
+(define (merge-weighted s1 s2 weight)
+  (let ((h1 (stream-car s1))
+        (h2 (stream-car s2)))
+    (cond ((<= (weight h1) (weight h2)) (cons-stream h1 (merge (stream-cdr s1) s2)))
+          ((> (weight h1) (weight h2)) (cons-stream h2 (merge s1 (stream-cdr s2)))))))
+
+
+(define (weight s)
+  (+ (car s)) (cdr s))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
