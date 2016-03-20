@@ -1,7 +1,5 @@
 ;; This is the code for Streams and Lazy Evaluation
 
-
-
 (define-syntax cons-stream
  (syntax-rules ()
    ((cons-stream a b)
@@ -174,10 +172,30 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;Problem 4
-
+; this will produce (1 1) (1 2)       ...(1 inf)
+;                         (2 2) (2 3) ...(2 inf)
+;                               (3 3) ...(3 inf)
+;                                    etc
 (define (interleave-pairs s1 s2)
   (cons-stream (stream-map (lambda (x) (cons (stream-car s1) x))
-                            (stream-cdr s2))
+                            s2)
                (interleave-pairs (stream-cdr s1)
                            (stream-cdr s2))))
+
+(define (interleave-pairs s t)
+     (cons-stream (cons (stream-car s) (stream-car t))
+                  (interleave
+                     (stream-map (lambda (x) (cons (stream-car s) x))
+                                 (stream-cdr t))
+                     (interleave-pairs (stream-cdr s) (stream-cdr t)))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;Problem 5
+
+(define (divisible-2 x) (integer? (/ x 2)))
+(define (not-divisible-2 x) (integer? (/ x 2)))
+
+(define ev (stream-filter divisible-2 integers))
+(define odd (stream-filter not-divisible-2 integers))
 
