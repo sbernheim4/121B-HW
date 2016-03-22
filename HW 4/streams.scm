@@ -146,6 +146,7 @@
         ((divisible? x 5) #f)
         (else #t)))
 
+; A stream of integers which contains only integers that are not multiples of 2, 3 or 5
 (define my-stream (stream-filter no-2-3-5 integers))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -158,9 +159,12 @@
 (define (not-disvisible-by-three? a)
   (if (not (integer? (/ a 3))) #t #f))
 
+; A stream which contains all integers not divisible by 7
 (define seven-stream (stream-filter not-disvisible-by-seven? integers))
+; A stream which contains all integers not divisible by 3
 (define three-stream (stream-filter not-disvisible-by-three? integers))
 
+; A stream which is all the values from both streams above 
 (define interleaved-stream (interleave seven-stream three-stream))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -173,6 +177,7 @@
 
 ;Problem 4
 
+; takes in two streams of integers and produces a stream of pairs 
 (define (interleave-pairs s t)
      (cons-stream (cons (stream-car s) (stream-car t))
                   (interleave
@@ -184,12 +189,6 @@
 
 ;Problem 5
 
-(define (divisible-2 x) (integer? (/ x 2)))
-(define (not-divisible-2 x) (not (integer? (/ x 2))))
-
-(define ev (stream-filter divisible-2 integers))
-(define odd (stream-filter not-divisible-2 integers))
-
 (define (merge-weighted s1 s2 weight)
   (let ((h1 (stream-car s1))
         (h2 (stream-car s2)))
@@ -197,20 +196,19 @@
           ((> (weight h1) (weight h2)) (cons-stream h2 (merge-weighted s1 (stream-cdr s2) weight))))))
 
 (define (weight pair)
-  (+ (car pair)) (cdr pair))
+  (+ (car pair) (cdr pair)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;Problem 6
 
 ;Part A
-(define (weight-i+j s)
-  (+ (car s)) (cdr s))
+(define (weight-i+j pair)
+  (+ (car pair) (cdr pair)))
 
 (define ordered-i+j (merge-weighted
                      (interleave-pairs integers integers)
                      (interleave-pairs integers integers) weight-i+j))
-
 
 ;Part B
 (define (cube x) (* x x x))
@@ -235,8 +233,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;Problem 7
-
-;(define (pair-weight a b) )
-
-;(define (combine-same-weights stream pair-weight))
+(define (combine-same-weights stream-of-pairs pair-weight)
+  (cons-stream
+   (combine-same-weights (stream-cdr stream-of-pairs) pair-weight))
+  (list (pair-weight (stream-car stream-of-pairs)) (stream-car stream-of-pairs)))
 
