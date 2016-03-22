@@ -236,3 +236,7 @@
 
 ;Problem 7
 
+;(define (pair-weight a b) )
+
+;(define (combine-same-weights stream pair-weight))
+
