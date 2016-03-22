@@ -192,8 +192,10 @@
 (define (merge-weighted s1 s2 weight)
   (let ((h1 (stream-car s1))
         (h2 (stream-car s2)))
-    (cond ((<= (weight h1) (weight h2)) (cons-stream h1 (merge-weighted (stream-cdr s1) s2 weight)))
-          ((> (weight h1) (weight h2)) (cons-stream h2 (merge-weighted s1 (stream-cdr s2) weight))))))
+    (cond ((<= (weight h1) (weight h2))
+           (cons-stream h1 (merge-weighted (stream-cdr s1) s2 weight)))
+          ((> (weight h1) (weight h2))
+           (cons-stream h2 (merge-weighted s1 (stream-cdr s2) weight))))))
 
 (define (weight pair)
   (+ (car pair) (cdr pair)))
@@ -208,7 +210,8 @@
 
 (define ordered-i+j (merge-weighted
                      (interleave-pairs integers integers)
-                     (interleave-pairs integers integers) weight-i+j))
+                     (interleave-pairs integers integers)
+                     weight-i+j))
 
 ;Part B
 (define (cube x) (* x x x))
@@ -233,8 +236,23 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;Problem 7
-(define (combine-same-weights stream-of-pairs pair-weight)
-  (cons-stream
-   (combine-same-weights (stream-cdr stream-of-pairs) pair-weight))
-  (list (pair-weight (stream-car stream-of-pairs)) (stream-car stream-of-pairs)))
+(define stream-pairs (interleave-pairs integers integers))
 
+;(define (combine-same-weights s pair-weight)
+ ; (let ((my-list (list (pair-weight (stream-car s)) (stream-car s))))
+ ; (define (itr s pair-weights curr-weight)
+ ;   (if (= curr-weight (pair-weight (stream-car s)))
+ ;           (append s (list (pair-weight (car my-list))))
+ ;   (cons-stream
+ ;    (itr (stream-cdr s) pair-weight (car my-list)))))))
+
+(define (combine-same-weights s pair-weight)
+  (cons-stream
+   (list (pair-weight (stream-car s)) (stream-car s))
+   (combine-same-weights (stream-cdr s) pair-weight)))
+
+;(create the new list first)
+;then test to see if the last two elements have the same weight
+;then if they do recreate the list appropriately using the stream-car and the stream-cdr
+         ;make recurisve call
+;otherwise make recursive call
