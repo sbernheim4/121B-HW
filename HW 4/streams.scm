@@ -196,7 +196,6 @@
     (cond ((<= (weight h1) (weight h2)) (cons-stream h1 (merge-weighted (stream-cdr s1) s2 weight)))
           ((> (weight h1) (weight h2)) (cons-stream h2 (merge-weighted s1 (stream-cdr s2) weight))))))
 
-
 (define (weight pair)
   (+ (car pair)) (cdr pair))
 
@@ -234,3 +233,6 @@
                           special-weight))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;Problem 7
+
