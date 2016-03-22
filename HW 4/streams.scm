@@ -185,7 +185,7 @@
 ;Problem 5
 
 (define (divisible-2 x) (integer? (/ x 2)))
-(define (not-divisible-2 x) (integer? (/ x 2)))
+(define (not-divisible-2 x) (not (integer? (/ x 2))))
 
 (define ev (stream-filter divisible-2 integers))
 (define odd (stream-filter not-divisible-2 integers))
@@ -193,12 +193,44 @@
 (define (merge-weighted s1 s2 weight)
   (let ((h1 (stream-car s1))
         (h2 (stream-car s2)))
-    (cond ((<= (weight h1) (weight h2)) (cons-stream h1 (merge (stream-cdr s1) s2)))
-          ((> (weight h1) (weight h2)) (cons-stream h2 (merge s1 (stream-cdr s2)))))))
+    (cond ((<= (weight h1) (weight h2)) (cons-stream h1 (merge-weighted (stream-cdr s1) s2 weight)))
+          ((> (weight h1) (weight h2)) (cons-stream h2 (merge-weighted s1 (stream-cdr s2) weight))))))
 
 
-(define (weight s)
-  (+ (car s)) (cdr s))
+(define (weight pair)
+  (+ (car pair)) (cdr pair))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;Problem 6
+
+;Part A
+(define (weight-i+j s)
+  (+ (car s)) (cdr s))
+
+(define ordered-i+j (merge-weighted
+                     (interleave-pairs integers integers)
+                     (interleave-pairs integers integers) weight-i+j))
+
+
+;Part B
+(define (cube x) (* x x x))
+
+(define (weight-icubed+jcubed s)
+  (+ (cube (car s)) (cube (cdr s))))
+
+(define ordered-icubed+jcubed (merge-weighted
+                               (interleave-pairs integers integers)
+                               (interleave-pairs integers integers)
+                               weight-icubed+jcubed))
+
+;Part C
+(define (special-weight pair)
+  (+ (* 2 (car pair)) (* 3 (cdr pair)) (* 5 (car pair) (cdr pair))))
+
+(define ordered-divisors (merge-weighted
+                          (interleave-pairs (stream-filter no-2-3-5 integers) (stream-filter no-2-3-5 integers))
+                          (interleave-pairs (stream-filter no-2-3-5 integers) (stream-filter no-2-3-5 integers))
+                          special-weight))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
