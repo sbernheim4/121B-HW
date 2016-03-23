@@ -205,13 +205,9 @@
 ;Problem 6
 
 ;Part A
-(define (weight-i+j pair)
-  (+ (car pair) (cdr pair)))
+(define ordered-i+j
+  (weighted-pairs integers integers +))
 
-(define ordered-i+j (merge-weighted
-                     (interleave-pairs integers integers)
-                     (interleave-pairs integers integers)
-                     weight-i+j))
 
 ;Part B
 (define (cube x) (* x x x))
@@ -219,19 +215,18 @@
 (define (weight-icubed+jcubed s)
   (+ (cube (car s)) (cube (cdr s))))
 
-(define ordered-icubed+jcubed (merge-weighted
-                               (interleave-pairs integers integers)
-                               (interleave-pairs integers integers)
-                               weight-icubed+jcubed))
+;; fix the weight part 
+(define ordered-icubed+jcubed
+  (weighted-pairs integers integers weight-icubed+jcubed))
+
 
 ;Part C
 (define (special-weight pair)
   (+ (* 2 (car pair)) (* 3 (cdr pair)) (* 5 (car pair) (cdr pair))))
 
-(define ordered-divisors (merge-weighted
-                          (interleave-pairs (stream-filter no-2-3-5 integers) (stream-filter no-2-3-5 integers))
-                          (interleave-pairs (stream-filter no-2-3-5 integers) (stream-filter no-2-3-5 integers))
-                          special-weight))
+; fix the weight part
+(define ordered-divisors
+  (weighted-pairs (stream-filter no-2-3-5 integers) (stream-filter no-2-3-5 integers) special-weight))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -270,7 +265,33 @@
 
 ;Problem 9
 
-;don't know. 
+;A) 
+(define (three-pairs s)
+    (if (= (length s) 4) #t #f))
 
 
+(define sum-of-squares (stream-filter three-pairs (same-weight-pairs integers
+                      integers
+                      (lambda (i j) (+ (* i i) (* j j))))))
 
+;B
+
+(define (two-pairs x)
+      (and (and (= (modulo (caadr x) 2) 1) (= (modulo (cdadr x) 2) 0)) 
+      ))
+
+
+(define (two-pairs-and-odd-even s)
+    (and
+     ; checks if there are two pairs 
+     (if (= (length s) 3) #t #f)
+     ; checks if for the first pair the first number is odd and the second is even
+     (and (= (modulo (caadr s) 2) 1) (= (modulo (cdadr s) 2) 0))
+     ; checks if for the second pair the first number is odd and the second is even 
+     (and (= (modulo (caaddr s) 2) 1) (= (modulo (cdaddr s) 2) 0))))
+
+
+(define i3j2 (stream-filter two-pairs-and-odd-even
+                            (same-weight-pairs integers
+                                               integers
+                                               (lambda (i j) (+ (* i i i) (* j j))))))
