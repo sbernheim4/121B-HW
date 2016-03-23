@@ -236,23 +236,33 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;Problem 7
-(define stream-pairs (interleave-pairs integers integers))
 
-;(define (combine-same-weights s pair-weight)
- ; (let ((my-list (list (pair-weight (stream-car s)) (stream-car s))))
- ; (define (itr s pair-weights curr-weight)
- ;   (if (= curr-weight (pair-weight (stream-car s)))
- ;           (append s (list (pair-weight (car my-list))))
- ;   (cons-stream
- ;    (itr (stream-cdr s) pair-weight (car my-list)))))))
+(define (makelist num s pair-weight)
+  (if (= (pair-weight (car (stream-car s)) (cdr (stream-car s))) num)
+      (if (= (pair-weight (car (stream-car(stream-cdr s))) (cdr (stream-car(stream-cdr s)))) num)
+          (cons (stream-car s)(makelist num (stream-cdr s) pair-weight))
+          (list (stream-car s)))))
 
-(define (combine-same-weights s pair-weight)
-  (cons-stream
-   (list (pair-weight (stream-car s)) (stream-car s))
-   (combine-same-weights (stream-cdr s) pair-weight)))
+(define (advstream num s pair-weight)
+  (let ((c (stream-car s)))
+  (if (= (pair-weight (car c) (cdr c)) num)
+      (advstream num (stream-cdr s) pair-weight)
+      s)))
 
-;(create the new list first)
-;then test to see if the last two elements have the same weight
-;then if they do recreate the list appropriately using the stream-car and the stream-cdr
-         ;make recurisve call
-;otherwise make recursive call
+(define (combine-same-weights s1 pair-weight)
+  (let ((h1 (pair-weight (car (stream-car s1)) (cdr (stream-car s1)))))
+        (cons-stream
+         (cons h1 (makelist h1 s1 pair-weight))
+         (combine-same-weights (advstream h1 (stream-cdr s1) pair-weight) pair-weight))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;Problem 8
+
+(define (more-than-one-pair s)
+    (if (> (length s) 2) #t #f))
+
+(define numbers (stream-filter more-than-one-pair (same-weight-pairs integers
+                      integers
+                      (lambda (i j) (+ (cube i) (cube j)))) ))
+
