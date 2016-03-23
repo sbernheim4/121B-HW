@@ -240,7 +240,7 @@
 (define (makelist num s pair-weight)
   (if (= (pair-weight (car (stream-car s)) (cdr (stream-car s))) num)
       (if (= (pair-weight (car (stream-car(stream-cdr s))) (cdr (stream-car(stream-cdr s)))) num)
-          (cons (stream-car s)(makelist num (stream-cdr s) pair-weight))
+          (cons (stream-car s) (makelist num (stream-cdr s) pair-weight))
           (list (stream-car s)))))
 
 (define (advstream num s pair-weight)
@@ -270,12 +270,7 @@
 
 ;Problem 9
 
-;A)
-
-;B)
-
-
-
+;don't know. 
 
 
 

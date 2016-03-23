@@ -21,6 +21,8 @@ For problem 4 I wrote a procedure which given two streams will produce another s
                                    .
                                    .
                                    . 
+The number of pairs between (1, 100) and (99, 100) increase exponentially by powers of 2. 
+
 Problem 5
 
 For problem 5 I used something very similar to merge except added the weight parameter and then used for the comparisons in the conditional statement (<= (weight h1) (weight h2)) and (> (weight h1) (weight h2)) and then made the appropriate recursive call on merge-weighted. 
@@ -31,3 +33,12 @@ For problem 6 I wrote the the three weight procedures and then made the new stre
 
 Problem 7 
 
+For problem 7 I wrote 2 helper procedures in addition to the combine-same-weights procedure. The combine-same-weights works by consign the weight with the appropriate list using make list and then calling cons-stream on that and the recursive call using advance stream. Makelist works by taking a number, stream and the pair-weight procedure as parameters. It tests if the weight of the first two pairs are equal and if so conses them together. Advstream works by taking a number stream and the pair-weight procedure and will move the stream ahead by the correct number of places by testing the weight and determining when the weight changes. 
+
+Problem 8 
+
+I wrote a procedure which determines if there is more than one pair in a list. Then I used stream-filter using this as the procedure and the stream from the PDF to produce the output. The first 5 Ramanujan numbers are 1729, 4104, 13832, 20683, 32832. 
+
+Problem 9 
+
+Don’t know
