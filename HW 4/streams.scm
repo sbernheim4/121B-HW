@@ -212,19 +212,17 @@
 ;Part B
 (define (cube x) (* x x x))
 
-(define (weight-icubed+jcubed s)
-  (+ (cube (car s)) (cube (cdr s))))
+(define (weight-icubed+jcubed a b)
+  (+ (cube a) (cube b)))
 
-;; fix the weight part 
 (define ordered-icubed+jcubed
   (weighted-pairs integers integers weight-icubed+jcubed))
 
 
 ;Part C
-(define (special-weight pair)
-  (+ (* 2 (car pair)) (* 3 (cdr pair)) (* 5 (car pair) (cdr pair))))
+(define (special-weight a b)
+  (+ (* 2 a) (* 3 b) (* 5 a) b))
 
-; fix the weight part
 (define ordered-divisors
   (weighted-pairs (stream-filter no-2-3-5 integers) (stream-filter no-2-3-5 integers) special-weight))
 
@@ -269,7 +267,6 @@
 (define (three-pairs s)
     (if (= (length s) 4) #t #f))
 
-
 (define sum-of-squares (stream-filter three-pairs (same-weight-pairs integers
                       integers
                       (lambda (i j) (+ (* i i) (* j j))))))
@@ -277,9 +274,7 @@
 ;B
 
 (define (two-pairs x)
-      (and (and (= (modulo (caadr x) 2) 1) (= (modulo (cdadr x) 2) 0)) 
-      ))
-
+      (and (and (= (modulo (caadr x) 2) 1) (= (modulo (cdadr x) 2) 0))))
 
 (define (two-pairs-and-odd-even s)
     (and
