@@ -262,7 +262,20 @@
 (define (more-than-one-pair s)
     (if (> (length s) 2) #t #f))
 
-(define numbers (stream-filter more-than-one-pair (same-weight-pairs integers
+(define ramanujan (stream-filter more-than-one-pair (same-weight-pairs integers
                       integers
-                      (lambda (i j) (+ (cube i) (cube j)))) ))
+                      (lambda (i j) (+ (cube i) (cube j))))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;Problem 9
+
+;A)
+
+;B)
+
+
+
+
+
 
