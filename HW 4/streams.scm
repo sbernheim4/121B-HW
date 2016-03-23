@@ -273,9 +273,6 @@
 
 ;B
 
-(define (two-pairs x)
-      (and (and (= (modulo (caadr x) 2) 1) (= (modulo (cdadr x) 2) 0))))
-
 (define (two-pairs-and-odd-even s)
     (and
      ; checks if there are two pairs 

@@ -41,4 +41,21 @@ I wrote a procedure which determines if there is more than one pair in a list. T
 
 Problem 9 
 
-Don’t know
+For problem 9a I wrote a procedure which will check to see if there are three or more pairs and then use 
+
+
+(define sum-of-squares (stream-filter three-pairs (same-weight-pairs integers
+                      integers
+                      (lambda (i j) (+ (* i i) (* j j))))))
+
+to make the call so that the weight is i^2 + j^2 and that any grouping contains more than two pairs. 
+
+For 9b I wrote another procedure which will check to make sure that there are two paris and that the i j elements for (i j) are odd and even respectively for each pair. Then I use 
+
+(define i3j2 (stream-filter two-pairs-and-odd-even
+                            (same-weight-pairs integers
+                                               integers
+                                               (lambda (i j) (+ (* i i i) (* j j))))))
+
+
+so that the elements are ordered by the weight of i^3 + j^2 and that the stream is then filtered base on the previous mentioned procedure. 
