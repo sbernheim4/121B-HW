@@ -1,201 +1,407 @@
-;; Scheme-to-Scheme compiler
-;; with lexical addressing, multiple arguments, letrec, call/cc, enter, exit
+;;;; METACIRCULAR EVALUATOR FROM CHAPTER 4 (SECTIONS 4.1.1-4.1.4) of
+;;;; STRUCTURE AND INTERPRETATION OF COMPUTER PROGRAMS
 
-(define (compile exp env-names)
-  (cond ((constant? exp)
-         (compile-constant exp))
-        ((variable? exp)
-         (compile-variable exp env-names))
-        ((letrec? exp)
-         (compile-letrec (letrec-vars exp)
-                         (letrec-vals exp)
-                         (letrec-body exp)
-                         env-names))
+;;;; Matches code in ch4.scm, except that "eval" is "mc-eval"
+;;;; and "apply" is "mc-apply".
+
+;;;; This file can be loaded into Scheme as a whole.
+;;;; Then you can initialize and start the evaluator by evaluating
+;;;; the two commented-out lines at the end of the file (setting up the
+;;;; global environment and starting the driver loop).
+
+;;;from section 4.1.4 -- must precede def of metacircular apply
+(define apply-in-underlying-scheme apply)
+
+;;;SECTION 4.1.1
+
+(define (mc-eval exp env)
+  (cond ((self-evaluating? exp) exp)
+        ((let? exp) (mc-eval (let->combination exp) env))
+        ((let*? exp) (mc-eval (let*->nested-lets exp) env))
+        ((variable? exp) (lookup-variable-value exp env))
+        ((make-unbound!? exp) (make-unbound! exp env))
+        ((quoted? exp) (text-of-quotation exp))
+        ((assignment? exp) (eval-assignment exp env))
+        ((definition? exp) (eval-definition exp env))
+        ((if? exp) (eval-if exp env))
         ((lambda? exp)
-         (compile-lambda (binders exp) (body exp) env-names))
-        ((if? exp)
-         (compile-if (predicate exp)
-                     (then-part exp)
-                     (else-part exp)
-                     env-names))
-        ((sequence? exp)
-         (compile-sequence (cdr exp) env-names))
-        ((enter? exp)
-         (compile-enter (enter-body exp) env-names))
-        ((exit? exp)
-         (compile-exit (exit-body exp) env-names))
-        (else ; it's an application!
-         (compile-application (function-of exp)
-                              (arguments-of exp)
-                              env-names))))
+         (make-procedure (lambda-parameters exp)
+                         (lambda-body exp)
+                         env))
+        ((begin? exp) 
+         (eval-sequence (begin-actions exp) env))
+        ((cond? exp) (mc-eval (cond->if exp) env))
+        ((application? exp)
+         (mc-apply (mc-eval (operator exp) env)
+                   (list-of-values (operands exp) env)))
+        (else
+         (error "Unknown expression type -- EVAL" exp))))
 
-(define (compile-constant c)
-  (lambda (env-values cont)
-    (cont c)))
+(define (mc-apply procedure arguments)
+  (cond ((primitive-procedure? procedure)
+         (apply-primitive-procedure procedure arguments))
+        ((compound-procedure? procedure)
+         (eval-sequence
+           (procedure-body procedure)
+           (extend-environment
+             (procedure-parameters procedure)
+             arguments
+             (procedure-environment procedure))))
+        (else
+         (error
+          "Unknown procedure type -- APPLY" procedure))))
 
-(define (compile-variable v env-names)
-  (let ((a (lookup-variable v env-names)))
-    (lambda (env-values cont)
-      (cont (fetch env-values a)))))
 
-(define (compile-sequence sequence env-names)
-  (let ((compiled-first
-        (compile (car sequence) env-names)))
-    (if (null? (cdr sequence))
-        compiled-first
-        (let ((compiled-rest 
-              (compile-sequence (cdr sequence) env-names)))
-          (lambda (env-values cont)
-            (compiled-first
-               env-values
-               (lambda (a) (compiled-rest env-values cont))))))))
+(define (list-of-values exps env)
+  (if (no-operands? exps)
+      '()
+      (cons (mc-eval (first-operand exps) env)
+            (list-of-values (rest-operands exps) env))))
 
-(define (compile-if test then else env-names)
-  (let ((test-code (compile test env-names))
-        (then-code (compile then env-names))
-        (else-code (compile else env-names)))
-    (lambda (env-values cont)
-      (test-code env-values
-                 (lambda (p)
-                   ((if p then-code else-code) env-values cont))))))
+(define (eval-if exp env)
+  (if (true? (mc-eval (if-predicate exp) env))
+      (mc-eval (if-consequent exp) env)
+      (mc-eval (if-alternative exp) env)))
 
-(define (compile-arguments args env-names)
-  (if (null? args)
-      (lambda (env-values cont)
-         (cont '()))
-      (let ((first-code (compile (car args) env-names))
-            (rest-code (compile-arguments (cdr args) env-names)))
-        (lambda (env-values cont)
-          (first-code env-values
-                      (lambda (first-value)
-                        (rest-code env-values
-                                   (lambda (rest-values)
-                                     (cont (cons first-value 
-                                                rest-values))))))))))
+(define (eval-sequence exps env)
+  (cond ((last-exp? exps) (mc-eval (first-exp exps) env))
+        (else (mc-eval (first-exp exps) env)
+              (eval-sequence (rest-exps exps) env))))
 
-(define (compile-application fun args env-names) ... )
+(define (eval-assignment exp env)
+  (set-variable-value! (assignment-variable exp)
+                       (mc-eval (assignment-value exp) env)
+                       env)
+  'ok)
 
-(define (compile-lambda binders exp env-names) ... )
+(define (eval-definition exp env)
+  (define-variable! (definition-variable exp)
+                    (mc-eval (definition-value exp) env)
+                    env)
+  'ok)
 
-(define (compile-letrec vars vals body env-names)
-  (let ((new-env-names (add-frame vars env-names)))
-    (let ((val-codes (map (lambda (val) (compile val new-env-names))
-                          vals))
-          (body-code (compile body new-env-names)))
-      (lambda (env-values cont)
-        (let ((new-env-values 
-              (add-frame (map (lambda (v) '*UNDEFINED*) vals) env-values)))
-          (bind-values val-codes (car new-env-values) new-env-values)
-          (body-code new-env-values cont))))))
+;;;SECTION 4.1.2
 
-(define (bind-values compiled-bindings frame-values new-env-values)
-  (if (null? frame-values)
-      'done
-      ((car compiled-bindings) 
-       new-env-values
-       (lambda (b)
-         (set-car! frame-values b)
-         (bind-values (cdr compiled-bindings)
-                      (cdr frame-values)
-                      new-env-values)))))
+(define (self-evaluating? exp)
+  (cond ((number? exp) true)
+        ((string? exp) true)
+        (else false)))
 
-(define (compile-enter exp env-names)
-  (let ((body-code (compile exp (add-frame (list '*EXIT*) env-names))))
-    (lambda (env-values cont)
-      (body-code (add-frame (list cont) env-values) cont))))
+(define (quoted? exp)
+  (tagged-list? exp 'quote))
 
-(define (compile-exit exp env-names)
-  (let ((body-code (compile exp env-names))
-        (i (lookup-variable '*EXIT* env-names)))
-    (lambda (env-values cont)
-      (body-code env-values (fetch env-values i)))))
+(define (text-of-quotation exp) (cadr exp))
 
-(define (compile-call/cc exp env-names) ...)
+(define (tagged-list? exp tag)
+  (if (pair? exp)
+      (eq? (car exp) tag)
+      false))
 
-; Syntax stuff
+(define (variable? exp) (symbol? exp))
 
-(define (begins-with atom)
-  (lambda (exp)
-    (if (pair? exp) (equal? (car exp) atom) #f)))
+(define (assignment? exp)
+  (tagged-list? exp 'set!))
 
-(define constant? integer?)
-(define (variable? v) (not (pair? v)))
+(define (assignment-variable exp) (cadr exp))
 
-(define letrec? (begins-with 'letrec))
-(define (letrec-vars exp) (map car (cadr exp)))
-(define (letrec-vals exp) (map cadr (cadr exp)))
-(define letrec-body caddr)
+(define (assignment-value exp) (caddr exp))
 
-(define lambda? (begins-with 'lambda))
-(define binders cadr)
-(define body caddr)
 
-(define if? (begins-with 'if))
-(define predicate cadr)
-(define else-part cadddr)
-(define then-part caddr)
+(define (definition? exp)
+  (tagged-list? exp 'define))
 
-(define sequence? (begins-with 'begin))
+(define (definition-variable exp)
+  (if (symbol? (cadr exp))
+      (cadr exp)
+      (caadr exp)))
 
-(define enter? (begins-with 'enter))
-(define exit? (begins-with 'exit))
-(define enter-body cadr)
-(define exit-body cadr)
+(define (definition-value exp)
+  (if (symbol? (cadr exp))
+      (caddr exp)
+      (make-lambda (cdadr exp)
+                   (cddr exp))))
 
-(define function-of car)
-(define arguments-of cdr)
+(define (lambda? exp) (tagged-list? exp 'lambda))
 
-; Initial environment and continuation stuff
+(define (lambda-parameters exp) (cadr exp))
+(define (lambda-body exp) (cddr exp))
 
-(define (lookup-variable v env-names) ...)
+(define (make-lambda parameters body)
+  (cons 'lambda (cons parameters body)))
 
-(define (fetch env-values a) ...)
 
-(define (add-frame frame env)
-  (cons frame env))
+(define (if? exp) (tagged-list? exp 'if))
 
-(define (initial-continuation v) v)
+(define (if-predicate exp) (cadr exp))
 
-(define (extend var val bindings)
-  (cons (cons var val) bindings))
+(define (if-consequent exp) (caddr exp))
 
-(define (prim-op op)
-  (lambda (x k) (k (apply op x))))
+(define (if-alternative exp)
+  (if (not (null? (cdddr exp)))
+      (cadddr exp)
+      'false))
 
+(define (make-if predicate consequent alternative)
+  (list 'if predicate consequent alternative))
+
+
+(define (begin? exp) (tagged-list? exp 'begin))
+
+(define (begin-actions exp) (cdr exp))
+
+(define (last-exp? seq) (null? (cdr seq)))
+(define (first-exp seq) (car seq))
+(define (rest-exps seq) (cdr seq))
+
+(define (sequence->exp seq)
+  (cond ((null? seq) seq)
+        ((last-exp? seq) (first-exp seq))
+        (else (make-begin seq))))
+
+(define (make-begin seq) (cons 'begin seq))
+
+
+(define (application? exp) (pair? exp))
+(define (operator exp) (car exp))
+(define (operands exp) (cdr exp))
+
+(define (no-operands? ops) (null? ops))
+(define (first-operand ops) (car ops))
+(define (rest-operands ops) (cdr ops))
+
+
+(define (cond? exp) (tagged-list? exp 'cond))
+
+(define (cond-clauses exp) (cdr exp))
+
+(define (cond-else-clause? clause)
+  (eq? (cond-predicate clause) 'else))
+
+(define (cond-predicate clause) (car clause))
+
+(define (cond-actions clause) (cdr clause))
+
+(define (cond->if exp)
+  (expand-clauses (cond-clauses exp)))
+
+(define (expand-clauses clauses)
+  (if (null? clauses)
+      'false                          ; no else clause
+      (let ((first (car clauses))
+            (rest (cdr clauses)))
+        (if (cond-else-clause? first)
+            (if (null? rest)
+                (sequence->exp (cond-actions first))
+                (error "ELSE clause isn't last -- COND->IF"
+                       clauses))
+            (make-if (cond-predicate first)
+                     (sequence->exp (cond-actions first))
+                     (expand-clauses rest))))))
+
+;;;SECTION 4.1.3
+
+(define (true? x)
+  (not (eq? x false)))
+
+(define (false? x)
+  (eq? x false))
+
+
+(define (make-procedure parameters body env)
+  (list 'procedure parameters body env))
+
+(define (compound-procedure? p)
+  (tagged-list? p 'procedure))
+
+
+(define (procedure-parameters p) (cadr p))
+(define (procedure-body p) (caddr p))
+(define (procedure-environment p) (cadddr p))
+
+
+(define (enclosing-environment env) (cdr env))
+
+(define (first-frame env) (car env))
+
+(define the-empty-environment '())
+
+(define (make-frame variables values)
+  (cons variables values))
+
+(define (frame-variables frame) (car frame))
+(define (frame-values frame) (cdr frame))
+
+(define (add-binding-to-frame! var val frame)
+  (set-car! frame (cons var (car frame)))
+  (set-cdr! frame (cons val (cdr frame))))
+
+(define (extend-environment vars vals base-env)
+  (if (= (length vars) (length vals))
+      (cons (make-frame vars vals) base-env)
+      (if (< (length vars) (length vals))
+          (error "Too many arguments supplied" vars vals)
+          (error "Too few arguments supplied" vars vals))))
+
+(define (lookup-variable-value var env)
+  (define (env-loop env)
+    (define (scan vars vals)
+      (cond ((null? vars)
+             (env-loop (enclosing-environment env)))
+            ((eq? var (car vars))
+             (car vals))
+            (else (scan (cdr vars) (cdr vals)))))
+    (if (eq? env the-empty-environment)
+        (error "Unbound variable" var)
+        (let ((frame (first-frame env)))
+          (scan (frame-variables frame)
+                (frame-values frame)))))
+  (env-loop env))
+
+(define (set-variable-value! var val env)
+  (define (env-loop env)
+    (define (scan vars vals)
+      (cond ((null? vars)
+             (env-loop (enclosing-environment env)))
+            ((eq? var (car vars))
+             (set-car! vals val))
+            (else (scan (cdr vars) (cdr vals)))))
+    (if (eq? env the-empty-environment)
+        (error "Unbound variable -- SET!" var)
+        (let ((frame (first-frame env)))
+          (scan (frame-variables frame)
+                (frame-values frame)))))
+  (env-loop env))
+
+(define (define-variable! var val env)
+  (let ((frame (first-frame env)))
+    (define (scan vars vals)
+      (cond ((null? vars)
+             (add-binding-to-frame! var val frame))
+            ((eq? var (car vars))
+             (set-car! vals val))
+            (else (scan (cdr vars) (cdr vals)))))
+    (scan (frame-variables frame)
+          (frame-values frame))))
+
+;;;SECTION 4.1.4
+
+(define (setup-environment)
+  (let ((initial-env
+         (extend-environment (primitive-procedure-names)
+                             (primitive-procedure-objects)
+                             the-empty-environment)))
+    (define-variable! 'true true initial-env)
+    (define-variable! 'false false initial-env)
+    initial-env))
+
+(define (primitive-procedure? proc)
+  (tagged-list? proc 'primitive))
+
+(define (primitive-implementation proc) (cadr proc))
+
+(define true #t)
+(define false #f)
 (define (1+ x) (+ 1 x))
+(define (-1+ x) (- x 1))
 
-(define initial-global-environment
-  (extend 'cons (prim-op cons)
-  (extend 'car (prim-op car)
-  (extend 'cdr (prim-op cdr)
-  (extend 'null? (prim-op null?)
-  (extend 'pair? (prim-op pair?)
-  (extend 'zero? (prim-op zero?)
-  (extend 'true #t
-  (extend 'false #f
-  (extend '- (prim-op -)
-  (extend  '* (prim-op *)
-  (extend '+ (prim-op +)
-  (extend '= (prim-op =)
-  (extend '< (prim-op <)
-  (extend '1+ (prim-op 1+) '() )))))))))))))))
+(define primitive-procedures
+  (list (list 'car car)
+        (list 'cdr cdr)
+        (list 'cons cons)
+        (list 'null? null?)
+        (list 'zero? zero?)
+        (list 'eq? eq?)
+        (list 'equal? equal?)
+        (list '1+ 1+)
+        (list '-1+ -1+)
+        (list 'quotient quotient)
+        (list 'remainder remainder)
+        (list '/ /)
+        (list '* *)
+        (list '+ +)
+        (list '- -)
+        (list '= =)
+        ))
 
-(define initial-names (cons (map car initial-global-environment) '()))
-(define initial-values (cons (map cdr initial-global-environment) '()))
+(define (primitive-procedure-names)
+  (map car
+       primitive-procedures))
 
-(define (try exp) 
-  ((compile exp initial-names) initial-values initial-continuation))
+(define (primitive-procedure-objects)
+  (map (lambda (proc) (list 'primitive (cadr proc)))
+       primitive-procedures))
 
-(define test1
-'(letrec
-   ((neg (lambda (x) (- 1 x)))
-    (square (lambda (x) (* x x)))
-    (fun (lambda (a b) (neg (+ (square a) (square b))))))
-   (fun (fun 10 20) 30)))
 
-(define test2
-'(letrec
-   ((neg (lambda (x) (- 1 x)))
-    (odd (lambda (n) (if (= n 0) 0 (even (- n 1)))))
-    (even (lambda (n) (if (= n 0) 1 (odd (- n 1))))))
-   (even 11)))
+(define (apply-primitive-procedure proc args)
+  (apply-in-underlying-scheme
+   (primitive-implementation proc) args))
+
+(define input-prompt ";;; M-Eval input:")
+(define output-prompt ";;; M-Eval value:")
+
+(define (driver-loop)
+  (prompt-for-input input-prompt)
+  (let ((input (read)))
+    (let ((output (mc-eval input the-global-environment)))
+      (announce-output output-prompt)
+      (user-print output)))
+  (driver-loop))
+
+(define (prompt-for-input string)
+  (newline) (newline) (display string) (newline))
+
+(define (announce-output string)
+  (newline) (display string) (newline))
+
+(define (user-print object)
+  (if (compound-procedure? object)
+      (display (list 'compound-procedure
+                     (procedure-parameters object)
+                     (procedure-body object)
+                     '<procedure-env>))
+      (display object)))
+
+(define true #t)
+(define false #f)
+
+(define the-global-environment (setup-environment))
+
+;(pp "To start the metacircular evaluator, evaluate (driver-loop)")
+
+'METACIRCULAR-EVALUATOR-LOADED
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;Problem 4.6 
+
+(define (let? exp) (tagged-list? exp 'let))
+
+(define (let->combination exp)
+  (let ((vars (map car (cadr exp)))
+        (vals (map cadr (cadr exp)))
+        (body (caddr exp)))
+    (cons (list 'lambda vars body) vals)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;Problem 4.7
+(define (let*? exp) (tagged-list? exp 'let*))
+
+(define (let*->nested-lets exp)
+  (let ((vars (map car (cadr exp)))
+        (vals (map cadr (cadr exp)))
+        (body (caddr exp))
+        (inits (cadr exp)))
+    (display inits)
+  (define (make-lets exp)
+    (if (null? exp)
+          body
+          (list 'let (list (car exp)) (make-lets (cdr exp)))))
+    (make-lets inits)))
+          
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;Problem 4.13
+
+; This sets the value of the variable to be null. 
+(define (make-unbound!? exp) (tagged-list? exp 'make-unbound!))
+
+(define (make-unbound! exp env)
+  (set-variable-value! (cadr exp) '() env))
