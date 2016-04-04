@@ -404,4 +404,27 @@
 (define (make-unbound!? exp) (tagged-list? exp 'make-unbound!))
 
 (define (make-unbound! exp env)
-  (set-variable-value! (cadr exp) '() env))
+  (remove (cadr exp) (caar env) (cdar env))
+)
+
+(define vars '(a b c x y z))
+(define vals '(1 2 3 4 5 6))
+(define env (list vars vals))
+
+(define (remove element vars vals)
+  (let ((index (get-index-of-element element vars 1)))
+  (list (remove-val-from-list element vars '()) (remove-val-from-list (get-element-by-index vals index) vals '()))))
+
+(define (remove-val-from-list element lst newlst)
+  (cond ((null? lst) newlst)
+        ((eq? (car lst) element) (remove-val-from-list element (cdr lst) newlst))
+        (else (remove-val-from-list element (cdr lst) (append newlst (list (car lst)))))))
+
+(define (get-element-by-index lst index)
+  (cond ((or (not (<= index (length lst))) (< index 1)) '(error: index out of bounds))
+        ((eq? index 1) (car lst))
+        (else (get-element-by-index (cdr lst) (- index 1)))))
+
+(define (get-index-of-element element lst index)
+  (cond ((eq? (car lst) element) index)
+        (else (get-index-of-element element (cdr lst) (+ index 1)))))
