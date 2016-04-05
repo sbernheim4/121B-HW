@@ -400,20 +400,16 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;Problem 4.13
 
-; This sets the value of the variable to be null. 
 (define (make-unbound!? exp) (tagged-list? exp 'make-unbound!))
 
 (define (make-unbound! exp env)
-  (remove (cadr exp) (caar env) (cdar env))
-)
+  (remove (cadr exp) (caar env) (cdar env) env))
 
-(define vars '(a b c x y z))
-(define vals '(1 2 3 4 5 6))
-(define env (list vars vals))
-
-(define (remove element vars vals)
+(define (remove element vars vals env)
   (let ((index (get-index-of-element element vars 1)))
-  (list (remove-val-from-list element vars '()) (remove-val-from-list (get-element-by-index vals index) vals '()))))
+  (let ((newenv (list (cons (remove-val-from-list element vars '()) (remove-val-from-list (get-element-by-index vals index) vals '())))))
+        (set-car! env (car newenv))
+        (set-cdr! env (cdr newenv)))))
 
 (define (remove-val-from-list element lst newlst)
   (cond ((null? lst) newlst)
