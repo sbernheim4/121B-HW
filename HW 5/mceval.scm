@@ -400,27 +400,37 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;Problem 4.13
 
+; make unbound tests to see if the exp is 'make-unbound!
 (define (make-unbound!? exp) (tagged-list? exp 'make-unbound!))
 
+; make-unbound! then calls remove which will remove the variable and its value form the environment.
+; (cadr exp) is the list of variables in the environment and (caar env) is the list of values in the environment
+; the environment is also passed so that it can be mutated by the rmove procedure
 (define (make-unbound! exp env)
   (remove (cadr exp) (caar env) (cdar env) env))
 
+; remove works by finding the index of the variable in the list of variables, and then removes the variable from the list and the
+; value from the list (the corresponding value is found through the index) using the remove-val-from-list procedure. 
 (define (remove element vars vals env)
   (let ((index (get-index-of-element element vars 1)))
   (let ((newenv (list (cons (remove-val-from-list element vars '()) (remove-val-from-list (get-element-by-index vals index) vals '())))))
         (set-car! env (car newenv))
         (set-cdr! env (cdr newenv)))))
 
+; remove-val-from-list will, given a list, remove the value specified from the list keeping the same order 
 (define (remove-val-from-list element lst newlst)
   (cond ((null? lst) newlst)
         ((eq? (car lst) element) (remove-val-from-list element (cdr lst) newlst))
         (else (remove-val-from-list element (cdr lst) (append newlst (list (car lst)))))))
 
+; get-element-by-index will return the element at the index provided for a specific element and list
+; indexing starts at 1
 (define (get-element-by-index lst index)
   (cond ((or (not (<= index (length lst))) (< index 1)) '(error: index out of bounds))
         ((eq? index 1) (car lst))
         (else (get-element-by-index (cdr lst) (- index 1)))))
 
+; get-index-of-element will return an element's index within a list
 (define (get-index-of-element element lst index)
   (cond ((eq? (car lst) element) index)
         (else (get-index-of-element element (cdr lst) (+ index 1)))))
