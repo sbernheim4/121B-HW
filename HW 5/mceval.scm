@@ -17,9 +17,10 @@
 (define (mc-eval exp env)
   (cond ((self-evaluating? exp) exp)
         ((let? exp) (mc-eval (let->combination exp) env))
-        ((let*? exp) (mc-eval (let*->nested-lets exp) env))
+        ((let*? exp) (mc-eval (let*->nested-lets exp) env)) ;added this line
         ((variable? exp) (lookup-variable-value exp env))
-        ((make-unbound!? exp) (make-unbound! exp env))
+        ((delayed? exp) (delayed exp env)) ; added this line
+        ((make-unbound!? exp) (make-unbound! exp env)) ; added this line
         ((quoted? exp) (text-of-quotation exp))
         ((assignment? exp) (eval-assignment exp env))
         ((definition? exp) (eval-definition exp env))
@@ -434,3 +435,37 @@
 (define (get-index-of-element element lst index)
   (cond ((eq? (car lst) element) index)
         (else (get-index-of-element element (cdr lst) (+ index 1)))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; this proceudre tests if exp is a delayed exp. 
+(define (delayed? exp)
+  (tagged-list? exp 'delayed))
+
+(define (delayed exp env)
+  (delay-it exp env))
+
+(define (force-it obj)
+  (if (thunk? obj)
+      (actual-value (thunk-exp obj) (thunk-env obj))
+      obj))
+
+(define (actual-value exp env)
+  (force-it (eval exp env)))
+
+(define (delay-it exp env)
+  (set-car! exp 'thunk))
+
+(define (thunk? obj)
+  (tagged-list? obj 'thunk))
+
+(define (thunk-exp thunk) (cadr thunk))
+(define (thunk-env thunk) (caddr thunk))
+
+;; "thunk" that has been forced and is storing its (memoized) value
+(define (evaluated-thunk? obj)
+  (tagged-list? obj 'evaluated-thunk))
+
+(define (thunk-value evaluated-thunk)
+  (cadr evaluated-thunk))
+

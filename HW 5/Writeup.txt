@@ -1,3 +1,15 @@
+Problem 4.6 
+
+For this question I wrote the basic let? procedure. Then I wrote let->combination which works by setting a variable vars to be the map of (car (card exp)) which gets the list of variables from exp. Then I do the same for vals except use map cadr. Then I get the body by calling the caddr of the exp. Once I have all these variables I cons the list of ‘lambda, vars, body with vals. 
+
+Problem 4.7
+
+I first wrote the basic let*? procedure. Then for the let*->nested-lets I determined which part of the exp (the parameter that this procedure takes) represents the variables, values, and bodies. I use map to get each of these values and then defined another procedure called make-lets which will list ‘let with the variables and the recursive call to the remaining variables. 
+
+Problem 4.13
+
+Essentially I solved this by using indexes. I first wrote two simple procedures, get-element-by-index, and get-index-of-element. I then wrote a procedure, remove-val-from-list, which works by taking as input a list, the element which will be removed from the list, and a newlst which should always be ‘(). Calling (remove-val-from-list ‘3 ‘(1 2 3 4 5 6) ‘()) will produce the list (1 2 4 5 6). Then I wrote another procedure called remove which takes in an element, a list of variables, a list of values, and an environment. I find the index of the element in the variables list and store this as the variable index. Then I create a newenv by doing (list (cons (remove-val-from-list element vars '()) (remove-val-from-list (get-element-by-index vals index) vals ‘()))). This call works by first removing element from the list of variables. Then I get the element at index index from before and call remove-val-from-list on this element and on the list of values. I cons these two lists and then call list on that. This produces a new environment without the corresponding variables and values. I then set the car of the environment to be the car of the new environment and the cdr of env to be the cdr of the the new environment. 
+
 Problem 4.15
 
 To solve the halting problem assume you have a Turing Machine M’ which takes as input a machine and an input in the form of <M, w>. M’ will work by printing out “YES” if M will accept w as input and “NO” if M does not accept w. Now Assume w is the input that no Turing Machine can accept. This can be done by constructing a table with all the possible Turing Machines (M1, M2, ...) at the top and all the possible inputs (w1, w2, ...) on the left side. Write a 1 if Mi accepts wi and a 0 if it doesn’t. Take the complement of the diagonal. This string never appears in any row and thus no turing machine will accept this input since the ith value of the complement will always be different from the ith value of any row. M’ will then now do one of two things. It will either say M accepts w or M rejects w. If M’ says that M accepts w and prints “YES” then there is a contradiction because M (which must have been in the list of machines in the table) accepts the input w which no turing machine accepted. If M’ says that M rejects w then this is also a contradiction because M’ then must have finished some computation on <M, w> to say that M rejects w which means M’ halted on input which no Turing Machine can accept. Therefore in either case M’ cannot determine if M will accept w since doing so would lead to a contradiction. 
@@ -9,4 +21,6 @@ The reason this definition of if would not work is because cond is defined as an
 (factorial 3) will not work since it uses a cond statement which is defined by if. This would lead to an error since when the evaluator attempts to evaluate the cond statement, it will be unable to evaluate the subsequent if statements. 
 
 Question 1
+
+I attempted to use the thunk idea from the normal order evaluator. I was able to get it so that delayed values would be recognized and not evaluated but I could not figure out when to force the evaluation at certain times. Therefore I was not able to do the following questions. 
 
