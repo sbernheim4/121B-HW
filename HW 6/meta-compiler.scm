@@ -4,6 +4,8 @@
 (define (compile exp env-names)
   (cond ((constant? exp)
          (compile-constant exp))
+        ((call/cc? exp) ; added these two lines
+         (compile-call/cc exp env-names))
         ((variable? exp)
          (compile-variable exp env-names))
         ((letrec? exp)
@@ -73,9 +75,28 @@
                                      (cont (cons first-value 
                                                 rest-values))))))))))
 
-(define (compile-application fun args env-names) ... )
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(define (compile-lambda binders exp env-names) ... )
+;Problem 1
+
+(define (compile-application fun args env-names)
+  (let ((fun-code (compile fun env-names))
+        (arg-code (compile-arguments args env-names))) ; added compile-arguments instead of compile
+    (lambda (env-values cont)
+      (fun-code env-values
+                (lambda (f)
+                  (arg-code env-values
+                            (lambda (a)
+                              (f a cont))))))))
+
+(define (compile-lambda binders exp env-names)
+  (let ((body-code (compile exp (cons binders env-names))))
+    (lambda (env-values cont)
+      (cont (lambda (x k)
+              (body-code (cons x env-values) k))))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 
 (define (compile-letrec vars vals body env-names)
   (let ((new-env-names (add-frame vars env-names)))
@@ -167,19 +188,11 @@
 
 (define (fetch env-values a)
   (let ((first-index (car a)) (second-index (cadr a)))
-    (get-element-by-index (get-first first-index env-values) (+ second-index 1))))
+    (get-first second-index (get-first first-index env-values))))
 
 (define (get-first index env-values)
   (cond ((= index 0) (car env-values))
         (else (get-first (- index 1) (cdr env-values)))))
-
-(define (get-element-by-index lst index)
-  (cond ((or (not (<= index (length lst))) (< index 1)) '(error: index out of bounds))
-        ((eq? index 1) (car lst))
-        (else (get-element-by-index (cdr lst) (- index 1)))))
-
-
-(define lst '((a b c) (d e) (f g h i)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -231,3 +244,37 @@
     (odd (lambda (n) (if (= n 0) 0 (even (- n 1)))))
     (even (lambda (n) (if (= n 0) 1 (odd (- n 1))))))
    (even 11)))
+
+;Problem 3
+
+(define test-lst '(call/cc (lambda (k) (+ 5 (k 3)))))
+
+(define (call/cc-param exp) (cadadr exp)) ;--> gives k from above
+(define (call/cc-body exp) (car (cdr (cdr (car (cdr test-lst)))))) ;--> gives the body
+(define call/cc? (begins-with 'call/cc))
+
+(define (compile-call/cc exp env-names)
+  (let ((lambda-code (compile-lambda (call/cc-param exp) (call/cc-body exp) env-names)) ;compile the lambda expression 
+        (compiled-param (compile (call/cc-param exp) (add-frame (call/cc-param exp) env-names)))) ;compile the parameter in the context of the extended environment
+    (lambda (env-values cont)
+      (lambda-code env-values
+                   (lambda (l)
+                           (compiled-param env-values
+                                           (lambda (c)
+                                             (l c cont))))))))
+
+(define ff
+  (try '(letrec ((fact
+                   (lambda (n) (if (= n 0) 1 (* n (fact (- n 1)))))))
+          fact)))
+
+(define ee
+  (try '(letrec ((expt
+                   (lambda (b e) (if (= e 0) 1 (* b (expt b (- e 1)))))))
+          expt)))
+
+
+; Problem 4
+(define (link proc)
+  (lambda q
+    (apply proc (list q (lambda (x) x)))))

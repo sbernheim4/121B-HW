@@ -1,0 +1,16 @@
+Samuel Bernheim (bernheim@brandeis.edu) 2016-5-8
+
+Problem 1 
+For question 1 I simply changed the compile-aplication procedure so that the third line would be compile-arguments as opposed to compile so that multiple arguments could be compiled. No modification to the compile-lambda procedure was necessary
+
+Problem 2 
+
+For lookup-variable I wrote two procedures. One which will determine which sublist contains the variable being searched for (storing that index). Then another procedure is called on this list to search for the index within the sub-list of the position of the variable. The final result is a list of the lexical address of the variable. 
+
+Problem 3
+
+For problem 3 I attempted to follow the same structure as the other compile procedures. I was not able to get the exact code working but was close to determining the structure. I began by compiling the lambda procedure and storing this in a new variable as well as compiling the parameter of the lambda procedure in an extended environment. I had trouble writing the lambda procedure underneath which is what will be used during run-time to run the compiled version of the compiled lambda expression and of the compiled parameter
+
+Problem 4
+
+For problem 4 I tried to use the syntax from the pdf to reverse engineer the syntax for link. I noticed that link should be using a lambda function to take in the input of the value and so proceeded accordingly. I also tried to use the note that the procedure should be generalized and thus should be a formal parameter for link. Combining these two ideas is how I attempted to proceed in designing the link procedure but I was unable to exactly understand how letrec was being used and thus how to correctly write the link procedure.  
