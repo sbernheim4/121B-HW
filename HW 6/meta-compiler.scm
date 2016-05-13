@@ -250,18 +250,15 @@
 (define test-lst '(call/cc (lambda (k) (+ 5 (k 3)))))
 
 (define (call/cc-param exp) (cadadr exp)) ;--> gives k from above
-(define (call/cc-body exp) (car (cdr (cdr (car (cdr test-lst)))))) ;--> gives the body
+(define (call/cc-body exp) (car (cdr (cdr (car (cdr exp)))))) ;--> gives the body
 (define call/cc? (begins-with 'call/cc))
 
 (define (compile-call/cc exp env-names)
-  (let ((lambda-code (compile-lambda (call/cc-param exp) (call/cc-body exp) env-names)) ;compile the lambda expression 
-        (compiled-param (compile (call/cc-param exp) (add-frame (call/cc-param exp) env-names)))) ;compile the parameter in the context of the extended environment
-    (lambda (env-values cont)
-      (lambda-code env-values
-                   (lambda (l)
-                           (compiled-param env-values
-                                           (lambda (c)
-                                             (l c cont))))))))
+  (let ((proc (compile-lambda (call/cc-param exp) (call/cc-body exp) env-names)))
+        (lambda (env-values cont)
+          (proc env-values
+                (lambda (p)
+                  (p (list (lambda (x k) (apply cont x))) cont))))))
 
 (define ff
   (try '(letrec ((fact
@@ -272,7 +269,6 @@
   (try '(letrec ((expt
                    (lambda (b e) (if (= e 0) 1 (* b (expt b (- e 1)))))))
           expt)))
-
 
 ; Problem 4
 (define (link proc)
